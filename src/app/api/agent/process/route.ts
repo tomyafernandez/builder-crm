@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { claimAgentJob, markJobDone, markJobFailed, findStaleJobs } from "@/lib/agent/queue";
+import { NextRequest, NextResponse, after } from "next/server";
+import { claimAgentJob, markJobDone, markJobFailed, findStaleJobs, liberarPendientesDelHilo } from "@/lib/agent/queue";
+import { getWorkerBaseUrl, triggerAgentWorker } from "@/lib/agent/trigger";
 import { runAgentForContact, runAgentForConversation } from "@/lib/agent";
 import { autorizadoPorSecreto } from "@/lib/secreto-worker";
 
@@ -89,6 +90,20 @@ async function processJob(jobId: string): Promise<NextResponse> {
   const claim = await claimAgentJob(jobId);
   if (!claim.ok) {
     return NextResponse.json({ skipped: true, reason: claim.reason });
+  }
+
+  // Spec nucleo/14: pase lo que pase con este turno, lo que el cliente escribio mientras
+  // tanto se atiende enseguida (no a los 30 min del barrido).
+  if (claim.conversationId) {
+    const conversationId = claim.conversationId;
+    after(async () => {
+      try {
+        const ids = await liberarPendientesDelHilo(conversationId);
+        if (ids.length > 0) await triggerAgentWorker(ids, getWorkerBaseUrl(), "agent-pendientes");
+      } catch (err) {
+        console.error("[agent-worker] no se pudieron liberar los pendientes del hilo", err);
+      }
+    });
   }
 
   try {

@@ -10,6 +10,8 @@ import { getAgentConfig } from "./config";
 import { renderContexto, renderSystemPrompt } from "./prompt";
 import { executeTool, getEnabledToolDefinitions, type ToolContext } from "./tools";
 import { getOpenRouterClient, getAgentModel, hasOpenRouterKey } from "./openrouter";
+import { armarHistorial, ultimoEntrante, type Historial } from "./historial";
+import { RECORDATORIO_NO_CALLAR } from "./prompt";
 
 const MAX_TOOL_ROUNDS = 6;
 const HISTORY_LIMIT = 30;
@@ -49,7 +51,7 @@ export async function runAgentForConversation(conversationId: string): Promise<R
   const config = await getAgentConfig(channel);
   if (!config.enabled) return { ok: false, reason: `agent_disabled_for_${channel}` };
 
-  const collapsed = await loadHistory(conversationId);
+  const { historial: collapsed, leidoHasta } = await loadHistory(conversationId);
   if (collapsed === "empty") return { ok: false, reason: "no_history" };
   if (collapsed === "no_user") return { ok: false, reason: "no_user_messages" };
   if (collapsed === "already_replied") return { ok: false, reason: "last_message_is_assistant" };
@@ -78,6 +80,7 @@ export async function runAgentForConversation(conversationId: string): Promise<R
 
   const client = getOpenRouterClient();
   let toolCalls = 0;
+  let reintentoVacio = false;
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
     const completion = await client.chat.completions.create({
@@ -114,7 +117,7 @@ export async function runAgentForConversation(conversationId: string): Promise<R
 
       if (detenido) {
         const mensaje = getConfig().agente.mensajeDerivacion;
-        const entrega = await deliverMessage(conversation.id, { text: mensaje }, "agent");
+        const entrega = await deliverMessage(conversation.id, { text: mensaje }, "agent", { leidoHasta });
         return {
           ok: entrega.ok,
           reply: mensaje,
@@ -126,9 +129,19 @@ export async function runAgentForConversation(conversationId: string): Promise<R
     }
 
     const reply = assistantMsg.content?.trim() ?? "";
-    if (!reply) return { ok: false, reason: "empty_reply", toolCalls };
+    if (!reply) {
+      // Spec nucleo/15: el agente no se queda callado. Una respuesta vacia ante un
+      // saludo o un "prueba" dejaba al cliente sin nada. Se le recuerda la regla UNA vez;
+      // si insiste en callar, se registra y no se manda nada inventado.
+      if (!reintentoVacio) {
+        reintentoVacio = true;
+        llmMessages.push({ role: "system", content: RECORDATORIO_NO_CALLAR });
+        continue;
+      }
+      return { ok: false, reason: "empty_reply", toolCalls };
+    }
 
-    const entrega = await deliverMessage(conversation.id, { text: reply }, "agent");
+    const entrega = await deliverMessage(conversation.id, { text: reply }, "agent", { leidoHasta });
     if (!entrega.ok) {
       return { ok: false, reason: `send_failed: ${entrega.error ?? "unknown"}`, toolCalls };
     }
@@ -155,7 +168,6 @@ export async function runAgentForContact(contactId: string): Promise<RunAgentRes
   return runAgentForConversation(conv.id);
 }
 
-type CollapsedHistory = Array<{ role: "user" | "assistant"; content: string }> | "empty" | "no_user" | "already_replied";
 
 /** Seccion EQUIPO: a quien puede asignar y quien tiene hoy el contacto. */
 async function renderTeamBlock(currentOwnerId: string | null): Promise<string> {
@@ -171,30 +183,23 @@ async function renderTeamBlock(currentOwnerId: string | null): Promise<string> {
   );
 }
 
-async function loadHistory(conversationId: string): Promise<CollapsedHistory> {
+async function loadHistory(conversationId: string): Promise<{ historial: Historial; leidoHasta: Date | null }> {
   const rows = await db
-    .select({ direction: messages.direction, body: messages.body })
+    .select({
+      direction: messages.direction,
+      body: messages.body,
+      origin: messages.origin,
+      createdAt: messages.createdAt,
+      rawPayload: messages.rawPayload,
+    })
     .from(messages)
     .where(eq(messages.conversationId, conversationId))
     .orderBy(desc(messages.createdAt))
     .limit(HISTORY_LIMIT);
 
-  if (rows.length === 0) return "empty";
-
-  const collapsed: Array<{ role: "user" | "assistant"; content: string }> = [];
-  for (const m of rows.reverse()) {
-    const role: "user" | "assistant" = m.direction === "in" ? "user" : "assistant";
-    const text = m.body?.trim();
-    if (!text) continue;
-    const last = collapsed[collapsed.length - 1];
-    if (last && last.role === role) last.content = `${last.content}\n${text}`;
-    else collapsed.push({ role, content: text });
-  }
-
-  while (collapsed.length > 0 && collapsed[0].role === "assistant") collapsed.shift();
-  if (collapsed.length === 0) return "no_user";
-  if (collapsed[collapsed.length - 1].role !== "user") return "already_replied";
-  return collapsed;
+  // Spec nucleo/14: el orden y el "ya contestado" los decide armarHistorial, que sabe
+  // que una respuesta del agente solo salda lo que el agente leyo.
+  return { historial: armarHistorial(rows), leidoHasta: ultimoEntrante(rows) };
 }
 
 export const agentConfig = {

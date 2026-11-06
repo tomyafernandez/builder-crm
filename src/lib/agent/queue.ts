@@ -1,8 +1,15 @@
 import { db } from "@/db";
 import { agentJobs, contacts, conversations } from "@/db/schema";
-import { and, eq, isNull, lte } from "drizzle-orm";
+import { and, eq, gte, isNull, lte, ne } from "drizzle-orm";
 
 const DEBOUNCE_MS = 6000;
+
+/**
+ * Spec nucleo/14: un job "processing" de la misma conversacion que se actualizo hace
+ * menos que esto se considera vivo. Mas viejo, se asume que el proceso murio y no
+ * bloquea a nadie (el turno del agente tiene maxDuration 60 s).
+ */
+export const OCUPADO_MS = 120_000;
 
 /**
  * Encola un job para procesar el agente IA.
@@ -87,6 +94,32 @@ export async function claimAgentJob(jobId: string): Promise<
   const now = Date.now();
   if (job.processAfter.getTime() > now) {
     return { ok: false, reason: "debounce_still_active" };
+  }
+
+  // Spec nucleo/14: un solo turno del agente por conversacion a la vez. Si el cliente
+  // escribio mientras el agente pensaba, este job espera a que termine el otro en vez
+  // de correr en paralelo (dos respuestas cruzadas al mismo mensaje). Queda pending con
+  // el debounce renovado; al terminar el otro, el worker lo vuelve a disparar.
+  if (job.conversationId) {
+    const [ocupado] = await db
+      .select({ id: agentJobs.id })
+      .from(agentJobs)
+      .where(
+        and(
+          eq(agentJobs.conversationId, job.conversationId),
+          eq(agentJobs.status, "processing"),
+          ne(agentJobs.id, jobId),
+          gte(agentJobs.updatedAt, new Date(now - OCUPADO_MS))
+        )
+      )
+      .limit(1);
+    if (ocupado) {
+      await db
+        .update(agentJobs)
+        .set({ processAfter: new Date(now + DEBOUNCE_MS), updatedAt: new Date() })
+        .where(and(eq(agentJobs.id, jobId), eq(agentJobs.status, "pending")));
+      return { ok: false, reason: "conversation_busy" };
+    }
   }
 
   // Pre-check rapido del contacto
@@ -191,6 +224,20 @@ export async function markJobFailed(
       updatedAt: new Date(),
     })
     .where(eq(agentJobs.id, jobId));
+}
+
+/**
+ * Spec nucleo/14: al terminar un turno, los jobs que quedaron esperando en la misma
+ * conversacion (el cliente escribio mientras el agente pensaba) se dejan listos para
+ * correr ya. Devuelve sus ids para que el worker los dispare.
+ */
+export async function liberarPendientesDelHilo(conversationId: string): Promise<string[]> {
+  const filas = await db
+    .update(agentJobs)
+    .set({ processAfter: new Date(), updatedAt: new Date() })
+    .where(and(eq(agentJobs.conversationId, conversationId), eq(agentJobs.status, "pending")))
+    .returning({ id: agentJobs.id });
+  return filas.map((f) => f.id);
 }
 
 /**

@@ -35,6 +35,25 @@ Sos {{agente}}, parte del equipo de {{negocio}}. Atendes a las personas que escr
 - Despues de usar una herramienta, integras la informacion en tu respuesta natural; nunca copias el JSON.`;
 
 /**
+ * Reglas del nucleo que van SIEMPRE al final del prompt, aunque el cliente lo reemplace
+ * entero desde config/cliente.ts o desde Ajustes (spec nucleo/15). No son estilo: son
+ * fallas medidas que cuestan clientes.
+ *
+ * - Callar: en Vocero CRM midieron que "Hola prueba 1" quedaba sin respuesta 8 de 8
+ *   veces, porque el modelo decidia que no era en serio. Es lo primero que escribe el
+ *   dueno al estrenar el agente y lo que escribe un cliente para ver si alguien atiende.
+ * - Un mensaje por turno: desde el 01/10/2026 Meta cobra cada mensaje de servicio
+ *   entregado, y tres mensajes seguidos ademas se leen como un bot.
+ */
+export const REGLAS_NUCLEO = `# REGLAS QUE NO SE ROMPEN
+- Siempre respondes algo cuando el cliente escribe: un saludo, un "hola", un "prueba" o un mensaje que no entendes merecen una respuesta breve y amable que lo invite a contar que necesita. Solo podes no agregar nada cuando el cliente cierra la charla ("ok gracias", "listo", un emoji de pulgar) despues de que ya le respondiste; aun asi, ante la duda, responde con una despedida corta.
+- Cada respuesta es UN solo mensaje, completo. No partas la respuesta en varios mensajes.`;
+
+/** Lo que se le recuerda al modelo si devolvio una respuesta vacia. */
+export const RECORDATORIO_NO_CALLAR =
+  "Tu respuesta anterior quedo vacia y el cliente no recibio nada. Responde ahora con un mensaje breve y amable para el cliente (por ejemplo, saludalo y preguntale en que lo podes ayudar). No dejes la respuesta vacia.";
+
+/**
  * Guia de estilo segun por donde entra el mensaje. Un DM de Instagram no se escribe
  * como un WhatsApp. Es el piso comun; el prompt propio de cada canal lo puede pisar.
  */
@@ -97,7 +116,8 @@ export function renderSystemPrompt(template: string, opts: { now?: Date; channel
     .replaceAll("{{negocio}}", marca.nombre);
 
   const hint = CHANNEL_HINTS[channel];
-  return hint ? `${rendered}\n\n# CANAL\n${hint}` : rendered;
+  const conCanal = hint ? `${rendered}\n\n# CANAL\n${hint}` : rendered;
+  return `${conCanal}\n\n${REGLAS_NUCLEO}`;
 }
 
 /**
