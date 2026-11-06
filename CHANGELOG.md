@@ -4,6 +4,23 @@ Que trae cada version de Builder CRM y que hacer para actualizar. SemVer segun l
 le importa a quien opera una instancia (ver "Versiones" en el [README](README.md)):
 mayor = pasos manuales, menor = funciones nuevas, parche = arreglos.
 
+## 2.4.0 — 2026-11-06
+
+### Actualizar desde 2.3.x
+
+Trae esta version. Para usar la agenda: activa `agenda` en `config/modulos.json`, carga
+`GOOGLE_CALENDAR_CLIENT_ID` y `GOOGLE_CALENDAR_CLIENT_SECRET` (guia en
+`modules/agenda/README.md`) y `ENCRYPTION_KEY`, redesplega y conecta Google desde Agenda.
+
+### Nuevo
+
+- **Modulo `agenda`**: el agente consulta horarios libres reales (tus horarios de
+  atencion menos lo ocupado en Google Calendar y en la propia agenda), ofrece 2 o 3, y
+  agenda en el elegido creando el evento con link de Meet e invitacion al cliente. Solo
+  puede reservar lo que ofrecio, vuelve a mirar que siga libre, y si Google falla no
+  confirma. Sin Google funciona con la agenda interna. Pagina Agenda con proximas citas,
+  conexion con Google (OAuth del propio negocio, acceso guardado cifrado) y horarios.
+
 ## 2.3.0 — 2026-11-06
 
 El Laboratorio: medir al agente antes de encenderlo.
