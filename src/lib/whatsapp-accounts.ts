@@ -7,6 +7,7 @@
 import { db } from "@/db";
 import { whatsappAccounts, contacts } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
+import { descifrar } from "@/lib/cifrado";
 
 export interface WhatsappAccount {
   id: string;
@@ -22,7 +23,8 @@ function mapRow(row: typeof whatsappAccounts.$inferSelect): WhatsappAccount {
     id: row.id,
     tenantId: row.tenantId,
     phoneNumberId: row.phoneNumberId,
-    accessToken: row.accessToken,
+    // Se guarda cifrado (spec nucleo/12); se descifra solo aca, en el servidor.
+    accessToken: descifrar(row.accessToken),
     wabaId: row.wabaId,
     displayPhone: row.displayPhone,
   };

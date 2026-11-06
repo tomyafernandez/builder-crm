@@ -131,6 +131,16 @@ async function openConversation(args: {
 }): Promise<NextResponse> {
   const { contactId, tenantId, to, body } = args;
 
+  // Spec nucleo/13: el primer contacto por plantilla tampoco sale fuera de la lista.
+  const { destinoPermitido, permitidosDelEntorno, motivoFueraDeLista, ERROR_FUERA_DE_LISTA } =
+    await import("@/lib/permitidos");
+  if (!destinoPermitido(permitidosDelEntorno(), "whatsapp", to)) {
+    return NextResponse.json(
+      { error: ERROR_FUERA_DE_LISTA, hint: motivoFueraDeLista() },
+      { status: 409 }
+    );
+  }
+
   if (!body.template) {
     return NextResponse.json(
       {

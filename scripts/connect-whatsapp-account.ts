@@ -9,6 +9,7 @@
  */
 import { config } from "dotenv";
 import postgres from "postgres";
+import { claveDesde, cifrarCon } from "./lib/cifrado.mjs";
 
 async function main() {
   config({ path: ".env.local" });
@@ -29,6 +30,15 @@ async function main() {
     );
   }
 
+  // Spec nucleo/12: el token nunca se guarda en claro.
+  const clave = claveDesde(process.env.ENCRYPTION_KEY);
+  if (!clave) {
+    throw new Error(
+      "Falta ENCRYPTION_KEY: el token se guarda cifrado. Generala con `openssl rand -base64 32`, cargala en .env.local y en la instancia, y volve a correr esto."
+    );
+  }
+  const tokenCifrado = cifrarCon(clave, accessToken);
+
   const sql = postgres(dbUrl, { prepare: false, max: 1 });
   try {
     const [tenant] =
@@ -43,7 +53,7 @@ async function main() {
       insert into whatsapp_accounts
         (tenant_id, phone_number_id, waba_id, display_phone, access_token, status, connected_at)
       values
-        (${tenant.id}, ${phoneNumberId}, ${wabaId}, ${displayPhone}, ${accessToken}, 'active', now())
+        (${tenant.id}, ${phoneNumberId}, ${wabaId}, ${displayPhone}, ${tokenCifrado}, 'active', now())
       on conflict (phone_number_id) do update set
         waba_id       = excluded.waba_id,
         display_phone = excluded.display_phone,

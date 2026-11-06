@@ -227,7 +227,8 @@ export const tenants = pgTable("tenants", {
 });
 
 // Una fila por numero de WhatsApp conectado. `phone_number_id` es la clave de
-// routing entrante; `access_token` es texto plano en Fase 1 (solo server-side).
+// routing entrante. `access_token` se guarda CIFRADO (AES-256-GCM, formato enc:v1:...)
+// con ENCRYPTION_KEY: se escribe con cifrar() y se lee solo por src/lib/whatsapp-accounts.ts.
 export const whatsappAccounts = pgTable("whatsapp_accounts", {
   id: uuid("id").primaryKey().defaultRandom(),
   tenantId: uuid("tenant_id")

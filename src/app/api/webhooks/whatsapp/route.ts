@@ -358,6 +358,11 @@ export async function POST(request: NextRequest) {
   }
 
   const enqueuedJobs: Array<{ contactId: string; jobId: string }> = [];
+  // Spec nucleo/16: si algo fallo al guardar, NO se acusa recibo. Antes se respondia 200
+  // igual y el mensaje se perdia con una linea de log: Meta ya no lo reenviaba. Con 500,
+  // Meta reintenta (hasta 7 dias, con espera creciente) y la idempotencia por
+  // meta_message_id hace que lo ya guardado no se duplique.
+  let fallas = 0;
 
   for (const entry of payload.entry ?? []) {
     for (const change of entry.changes ?? []) {
@@ -391,7 +396,8 @@ export async function POST(request: NextRequest) {
           );
           if (result) enqueuedJobs.push(result);
         } catch (err) {
-          console.error("[whatsapp-webhook] error mensaje entrante", err);
+          fallas++;
+          console.error("[whatsapp-webhook] error mensaje entrante (Meta lo reintentara)", err);
         }
       }
 
@@ -399,7 +405,8 @@ export async function POST(request: NextRequest) {
         try {
           await handleStatusUpdate(status);
         } catch (err) {
-          console.error("[whatsapp-webhook] error status", err);
+          fallas++;
+          console.error("[whatsapp-webhook] error status (Meta lo reintentara)", err);
         }
       }
     }
@@ -452,7 +459,11 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  // Meta espera 200 OK; si tarda demasiado o devuelve error retira el webhook
+  if (fallas > 0) {
+    return NextResponse.json({ received: false, retry: true, fallas }, { status: 500 });
+  }
+
+  // Meta espera 200 OK rapido; un error SOLO cuando hay algo que reintentar.
   return NextResponse.json({ received: true });
 }
 

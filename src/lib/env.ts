@@ -46,6 +46,23 @@ export const esquemaEnv = z.object({
   // abierta en silencio. Generar con: openssl rand -hex 32
   AGENT_WORKER_SECRET: z.string().min(16, "AGENT_WORKER_SECRET es obligatoria (openssl rand -hex 32)"),
   LEADS_WEBHOOK_SECRET: opcional,
+  // Cifra en reposo los secretos guardados en la base (hoy: el token de WhatsApp de
+  // Meta directo). Exactamente 32 bytes en base64: openssl rand -base64 32. Opcional
+  // para no cortar instancias viejas, pero sin ella connect:whatsapp se niega a guardar
+  // un token y /api/health avisa (cifrado: false). NO se cambia una vez usada: lo
+  // cifrado con la clave anterior deja de poder leerse. Ver spec nucleo/12.
+  ENCRYPTION_KEY: z.preprocess(
+    vacioComoAusente,
+    z
+      .string()
+      .regex(/^[A-Za-z0-9+/]{43}=$/, "ENCRYPTION_KEY: 32 bytes en base64, 44 caracteres (openssl rand -base64 32)")
+      .optional()
+  ),
+  // Guardarrail de pruebas en vivo (spec nucleo/13): lista de numeros (con o sin +,
+  // separados por coma) o identidades de canal (ig:..., fb:...). Con valor, NADA sale
+  // hacia una identidad fuera de la lista: ni el agente, ni una persona desde la bandeja,
+  // ni una plantilla. Vacia = sin restriccion (produccion).
+  ALLOWED_WA_IDS: opcional,
   SWEEP_INTERVAL_MIN: z.preprocess(vacioComoAusente, z.coerce.number().int().min(1).optional()),
 
   // --- Agente IA (OpenRouter) ---
@@ -129,5 +146,7 @@ export function capacidades() {
     metaDirecto: Boolean(e.WHATSAPP_ACCESS_TOKEN && e.WHATSAPP_PHONE_NUMBER_ID),
     push: Boolean(e.NEXT_PUBLIC_VAPID_PUBLIC_KEY && e.VAPID_PRIVATE_KEY),
     documentos: Boolean(e.S3_ENDPOINT && e.S3_BUCKET && e.S3_ACCESS_KEY_ID && e.S3_SECRET_ACCESS_KEY),
+    cifrado: Boolean(e.ENCRYPTION_KEY && e.ENCRYPTION_KEY.trim()),
+    soloNumerosPermitidos: Boolean(e.ALLOWED_WA_IDS && e.ALLOWED_WA_IDS.trim()),
   };
 }

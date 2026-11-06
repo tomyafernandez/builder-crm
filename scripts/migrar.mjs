@@ -25,6 +25,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import postgres from "postgres";
 import { listarMigraciones } from "./lib/migraciones.mjs";
+import { claveDesde, cifrarCon, PREFIJO } from "./lib/cifrado.mjs";
 
 const raiz = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -118,6 +119,31 @@ try {
     for (const { tabla } of sinRls) {
       await sql.unsafe(`alter table public."${tabla}" enable row level security`);
       console.log(`[migrar] RLS habilitado en ${tabla} (faltaba)`);
+    }
+    // Spec nucleo/12: cifrar los tokens que hayan quedado en texto plano (instancias
+    // anteriores a 2.2.0). Idempotente: solo toca filas sin el prefijo. Sin clave no
+    // hace nada y lo dice: /api/health tambien lo marca (cifrado: false).
+    let clave = null;
+    try {
+      clave = claveDesde(process.env.ENCRYPTION_KEY);
+    } catch (err) {
+      console.error(`[migrar] ${err instanceof Error ? err.message : err}`);
+    }
+    const tabla = await sql`select to_regclass('public.whatsapp_accounts') as t`;
+    if (tabla[0]?.t) {
+      const enClaro = await sql`
+        select id, access_token from public.whatsapp_accounts
+        where access_token is not null and access_token not like ${PREFIJO + "%"}`;
+      if (enClaro.length > 0 && clave) {
+        for (const fila of enClaro) {
+          await sql`update public.whatsapp_accounts
+            set access_token = ${cifrarCon(clave, fila.access_token)}, updated_at = now()
+            where id = ${fila.id} and access_token not like ${PREFIJO + "%"}`;
+        }
+        console.log(`[migrar] ${enClaro.length} token(s) de WhatsApp cifrados en reposo`);
+      } else if (enClaro.length > 0) {
+        console.warn(`[migrar] AVISO: ${enClaro.length} token(s) de WhatsApp en texto plano; configura ENCRYPTION_KEY (openssl rand -base64 32) y redespliega`);
+      }
     }
     console.log(`[migrar] listo: ${aplicadas.size + pendientes.length} migraciones en total`);
   }

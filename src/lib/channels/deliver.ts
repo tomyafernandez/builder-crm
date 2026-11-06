@@ -7,6 +7,12 @@ import { conectorParaConversacion } from "./conectores";
 import type { ConversationRow, OutboundMessage } from "./conector";
 import { touchConversation } from "./ingest";
 import type { Channel } from "./types";
+import {
+  destinoPermitido,
+  ERROR_FUERA_DE_LISTA,
+  motivoFueraDeLista,
+  permitidosDelEntorno,
+} from "@/lib/permitidos";
 
 /**
  * Unico camino de salida del sistema: envia por el conector de la conversacion y
@@ -23,6 +29,15 @@ export interface DeliverResult {
 
 export type DeliverOrigin = "agent" | "human" | "template";
 
+export interface DeliverOpciones {
+  /**
+   * Spec nucleo/14: hasta que entrante LEYO el agente cuando armo esta respuesta. Se
+   * guarda en `raw_payload.agente.leidoHasta` y lo usa el historial para no dar por
+   * contestado un mensaje que el cliente mando mientras el agente pensaba.
+   */
+  leidoHasta?: Date | null;
+}
+
 export async function getConversationRow(
   conversationId: string
 ): Promise<ConversationRow | null> {
@@ -37,7 +52,8 @@ export async function getConversationRow(
 export async function deliverMessage(
   conversationId: string,
   msg: OutboundMessage,
-  origin: DeliverOrigin = "human"
+  origin: DeliverOrigin = "human",
+  opciones: DeliverOpciones = {}
 ): Promise<DeliverResult> {
   const conversation = await getConversationRow(conversationId);
   if (!conversation) {
@@ -51,6 +67,16 @@ export async function deliverMessage(
       messageId: null,
       error: `sin conector para el proveedor "${conversation.provider}"`,
     };
+  }
+
+  // Spec nucleo/13: en modo pruebas no sale nada fuera de la lista. Antes de la fila
+  // optimista a proposito: un envio bloqueado no ensucia el hilo ni cuenta como saliente.
+  if (
+    conversation.provider !== "simulador" &&
+    !destinoPermitido(permitidosDelEntorno(), conversation.channel, conversation.participantId)
+  ) {
+    console.warn(`[deliver] bloqueado por ALLOWED_WA_IDS (${origin}, ${conversation.channel})`);
+    return { ok: false, messageId: null, error: ERROR_FUERA_DE_LISTA, hint: motivoFueraDeLista() };
   }
 
   const body = bodyOf(msg);
@@ -73,6 +99,9 @@ export async function deliverMessage(
       body,
       templateName: msg.template?.name ?? null,
       status: "pending",
+      rawPayload: opciones.leidoHasta
+        ? { agente: { leidoHasta: opciones.leidoHasta.toISOString() } }
+        : null,
       tenantId: conversation.tenantId,
       toPhone:
         conversation.channel === "whatsapp" ? conversation.participantId : null,

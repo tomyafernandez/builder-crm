@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { sql } from "drizzle-orm";
 import { APP_VERSION, BUILD_COMMIT } from "@/lib/version";
-import { envFaltantes } from "@/lib/env";
 import { erroresConfig } from "@/lib/config";
 import { modoLocal } from "@/lib/modo-local";
 import { correoDeAccesoActivo } from "@/lib/auth-correo";
+import { capacidades, envFaltantes } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
 
@@ -56,5 +56,9 @@ export async function GET() {
     correo: correoDeAccesoActivo(),
     // Para que nadie confunda una instancia de verdad con alguien probandolo en su PC.
     modoLocal: modoLocal(),
+    // Spec nucleo/12 y 13: si los secretos de la base van cifrados y si la instancia
+    // esta en modo pruebas (solo le escribe a la lista de numeros permitidos).
+    cifrado: capacidades().cifrado,
+    soloNumerosPermitidos: capacidades().soloNumerosPermitidos,
   });
 }
