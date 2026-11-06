@@ -88,6 +88,10 @@ export const esquemaEnv = z.object({
   WHATSAPP_WEBHOOK_VERIFY_TOKEN: opcional,
   WHATSAPP_API_VERSION: opcional,
 
+  // --- Modulo agenda: Google Calendar (OAuth del negocio) ---
+  GOOGLE_CALENDAR_CLIENT_ID: opcional,
+  GOOGLE_CALENDAR_CLIENT_SECRET: opcional,
+
   // --- Push (Web Push / VAPID) ---
   NEXT_PUBLIC_VAPID_PUBLIC_KEY: opcional,
   VAPID_PRIVATE_KEY: opcional,
