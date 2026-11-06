@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { channelAccounts, contacts, conversations, messages } from "@/db/schema";
 import { and, asc, desc, eq, isNull, ne, or, sql } from "drizzle-orm";
 import { isChannel, type Channel } from "@/lib/channels/types";
+import { ETIQUETA_LABORATORIO } from "@/lib/laboratorio/constantes";
 
 /**
  * Capa de lectura del inbox.
@@ -132,6 +133,9 @@ export async function listConversations(filter?: {
     .where(
       and(
         soloConectadas,
+        // Spec nucleo/17: los hilos del Laboratorio no aparecen en la bandeja mientras
+        // corre (al terminar cada caso se borran; quedan copiados en lab_casos).
+        sql`not (coalesce(${contacts.tags}, '{}'::text[]) @> array[${ETIQUETA_LABORATORIO}]::text[])`,
         filter?.channel ? eq(conversations.channel, filter.channel) : undefined,
         // Un asesor ve solo los hilos de sus contactos. Los hilos sin contacto
         // (raros: llegaron antes de crear el contacto) los ve solo el admin.

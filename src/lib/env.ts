@@ -68,6 +68,10 @@ export const esquemaEnv = z.object({
   // --- Agente IA (OpenRouter) ---
   OPENROUTER_API_KEY: opcional,
   AGENT_MODEL: opcional,
+  // Modelo del juez del Laboratorio (spec nucleo/17); si falta, el del agente.
+  AGENT_JUDGE_MODEL: opcional,
+  // Proveedor compatible con OpenAI distinto de OpenRouter (default https://openrouter.ai/api/v1).
+  OPENROUTER_BASE_URL: opcional,
 
   // --- Zernio (WhatsApp + Instagram + Messenger) ---
   ZERNIO_API_KEY: opcional,

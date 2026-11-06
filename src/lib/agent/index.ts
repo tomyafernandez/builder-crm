@@ -32,7 +32,19 @@ export interface RunAgentResult {
  * 4. Responde por `deliverMessage`, el unico camino de salida: el conector de la
  *    conversacion decide si eso es Zernio, Meta o el simulador.
  */
-export async function runAgentForConversation(conversationId: string): Promise<RunAgentResult> {
+export interface OpcionesTurno {
+  /**
+   * Spec nucleo/17: el Laboratorio prueba al agente ANTES de encenderlo, asi que tiene
+   * que poder correrlo con el interruptor del canal apagado. Solo se respeta en
+   * conversaciones del simulador, que nunca salen a la red.
+   */
+  ignorarInterruptor?: boolean;
+}
+
+export async function runAgentForConversation(
+  conversationId: string,
+  opciones: OpcionesTurno = {}
+): Promise<RunAgentResult> {
   const conversation = await getConversationRow(conversationId);
   if (!conversation) return { ok: false, reason: "conversation_not_found" };
   if (!conversation.contactId) return { ok: false, reason: "conversation_without_contact" };
@@ -49,7 +61,8 @@ export async function runAgentForConversation(conversationId: string): Promise<R
   const channel: Channel = isChannel(conversation.channel) ? conversation.channel : "whatsapp";
 
   const config = await getAgentConfig(channel);
-  if (!config.enabled) return { ok: false, reason: `agent_disabled_for_${channel}` };
+  const puedeIgnorar = opciones.ignorarInterruptor === true && conversation.provider === "simulador";
+  if (!config.enabled && !puedeIgnorar) return { ok: false, reason: `agent_disabled_for_${channel}` };
 
   const { historial: collapsed, leidoHasta } = await loadHistory(conversationId);
   if (collapsed === "empty") return { ok: false, reason: "no_history" };

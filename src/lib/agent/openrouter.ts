@@ -19,7 +19,9 @@ export function getOpenRouterClient(): OpenAI {
   if (!client) {
     client = new OpenAI({
       apiKey,
-      baseURL: OPENROUTER_BASE_URL,
+      // OPENROUTER_BASE_URL permite cualquier proveedor compatible con la API de OpenAI
+      // (y un servidor simulado para las pruebas de punta a punta).
+      baseURL: process.env.OPENROUTER_BASE_URL?.trim() || OPENROUTER_BASE_URL,
       defaultHeaders: {
         // OpenRouter usa estos headers para ranking en su leaderboard (opcional)
         "HTTP-Referer": process.env.APP_BASE_URL || "http://localhost:3000",
@@ -33,6 +35,14 @@ export function getOpenRouterClient(): OpenAI {
 /** AGENT_MODEL (entorno) -> config.agente.modelo -> default del nucleo. */
 export function getAgentModel(): string {
   return process.env.AGENT_MODEL || getConfig().agente.modelo || DEFAULT_MODEL;
+}
+
+/**
+ * Modelo del juez del Laboratorio (spec nucleo/17). Conviene uno mas capaz que el del
+ * agente: el agente puede ser barato, el que lo evalua no. Cae al del agente.
+ */
+export function getJudgeModel(): string {
+  return process.env.AGENT_JUDGE_MODEL?.trim() || getAgentModel();
 }
 
 export function hasOpenRouterKey(): boolean {

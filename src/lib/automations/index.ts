@@ -26,6 +26,7 @@ import { displayName, getMember } from "@/lib/team";
 import { SOURCE_LABELS } from "@/lib/constants";
 import { CHANNEL_LABELS, isChannel } from "@/lib/channels/types";
 import type { LeadSource } from "@/types";
+import { ETIQUETA_LABORATORIO } from "@/lib/laboratorio/constantes";
 
 /**
  * Motor de automatizaciones.
@@ -46,6 +47,17 @@ export async function emitAutomationEvent(event: AutomationEvent): Promise<strin
   if (depth > MAX_EVENT_DEPTH) {
     console.warn(`[automations] evento ${event.trigger} ignorado: profundidad ${depth}`);
     return [];
+  }
+
+  // Spec nucleo/17: los clientes del Laboratorio no disparan automatizaciones (ni
+  // pushes al equipo por 8 leads falsos en cada corrida).
+  if (event.contactId) {
+    const [c] = await db
+      .select({ tags: contacts.tags })
+      .from(contacts)
+      .where(eq(contacts.id, event.contactId))
+      .limit(1);
+    if (c?.tags?.includes(ETIQUETA_LABORATORIO)) return [];
   }
 
   const candidates = await db
