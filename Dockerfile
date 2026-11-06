@@ -59,7 +59,10 @@ COPY --from=builder --chown=app:app /app/public ./public
 # Migraciones del nucleo y de los modulos, y el runner. `postgres` ya esta en el
 # node_modules trazado porque la app lo usa.
 COPY --from=builder --chown=app:app /app/supabase/migrations ./supabase/migrations
+# El runner importa ./lib/ (lista de migraciones y cifrado): sin esa carpeta el
+# contenedor muere al arrancar con "Cannot find module" y Coolify lo reinicia en bucle.
 COPY --from=builder --chown=app:app /app/scripts/migrar.mjs ./scripts/migrar.mjs
+COPY --from=builder --chown=app:app /app/scripts/lib ./scripts/lib
 COPY --from=builder --chown=app:app /app/config ./config
 COPY --from=builder --chown=app:app /app/modules ./modules
 COPY --chown=app:app docker/entrypoint.sh /entrypoint.sh
