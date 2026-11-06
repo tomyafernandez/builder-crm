@@ -126,6 +126,8 @@ export const esquemaModulosNucleo = z.object({
   reportes: z.boolean().default(true),
   /** Simulador de conversaciones (solo admin). */
   simulador: z.boolean().default(true),
+  /** Laboratorio: clientes simulados + juez que puntua al agente (solo admin). */
+  laboratorio: z.boolean().default(true),
 });
 
 /**
@@ -162,6 +164,36 @@ const esquemaDemo = z.object({
    */
   valoresTexto: z.array(z.string().min(1).max(80)).optional(),
 });
+
+/**
+ * Laboratorio (spec nucleo/17): clientes simulados que prueban al agente REAL antes de
+ * encenderlo con clientes de verdad. Las personas de aca reemplazan a las genericas del
+ * nucleo (src/lib/laboratorio/personas.ts): cada nicho sabe que le preguntan.
+ */
+const esquemaPersonaLab = z.object({
+  clave,
+  nombre: z.string().min(1).max(60),
+  /** Que tipo de cliente es, en una frase (lo ve el juez y la pantalla). */
+  descripcion: z.string().min(1).max(200),
+  /** Lo que escribe, en orden. Fijo a proposito: la prueba tiene que ser repetible. */
+  guion: z.array(z.string().min(1).max(500)).min(1).max(8),
+  /** Que deberia hacer un buen agente con este cliente (guia para el juez). */
+  esperado: z.string().max(300).optional(),
+});
+
+const esquemaLaboratorio = z.object({
+  personas: z.array(esquemaPersonaLab).max(16).optional(),
+  /** Puntaje minimo (0-100) para dar por aprobado al agente. */
+  puntajeMinimo: z.number().int().min(0).max(100).default(85),
+  /**
+   * true: no se puede ENCENDER el agente en un canal real si la ultima corrida de ese
+   * canal no llego al puntaje minimo. Apagado por defecto para no trabar instancias ya
+   * desplegadas; el estandar de Levari lo enciende en cada cliente.
+   */
+  exigir: z.boolean().default(false),
+});
+
+export type PersonaLab = z.infer<typeof esquemaPersonaLab>;
 
 export const esquemaConfig = z.object({
   marca: esquemaMarca,
@@ -202,6 +234,8 @@ export const esquemaConfig = z.object({
   }),
   /** Datos de demostracion del nicho. Sin esto, la demo del nucleo es generica. */
   demo: esquemaDemo.optional(),
+  /** Laboratorio del agente: personas del nicho y puntaje minimo. Ver spec nucleo/17. */
+  laboratorio: esquemaLaboratorio.default({ puntajeMinimo: 85, exigir: false }),
   /** Funciones del nucleo apagables + modulos de `modules/` por nombre de carpeta. */
   modulos: z
     .object({
@@ -212,6 +246,7 @@ export const esquemaConfig = z.object({
         push: true,
         reportes: true,
         simulador: true,
+        laboratorio: true,
       }),
       /** Nombres de carpetas dentro de modules/ que estan activas. */
       activos: z.array(clave).default([]),
@@ -224,6 +259,7 @@ export const esquemaConfig = z.object({
         push: true,
         reportes: true,
         simulador: true,
+        laboratorio: true,
       },
       activos: [],
     }),

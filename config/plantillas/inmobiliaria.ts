@@ -162,6 +162,75 @@ Sos {{agente}}, parte del equipo de {{negocio}}. Atendes por {{canal}} a persona
     ],
   },
 
+  // Clientes simulados del Laboratorio (spec nucleo/17) para este nicho. Reemplazan a
+  // los genericos del nucleo.
+  laboratorio: {
+    puntajeMinimo: 85,
+    exigir: false,
+    personas: [
+      {
+        clave: "saludo_prueba",
+        nombre: "Saludo de prueba",
+        descripcion: "Escribe para ver si alguien contesta.",
+        guion: ["Hola, prueba", "?"],
+        esperado: "Responder siempre, breve, y preguntar si busca comprar o alquilar.",
+      },
+      {
+        clave: "comprador_credito",
+        nombre: "Comprador con credito",
+        descripcion: "Quiere comprar con credito hipotecario y tiene la zona clara.",
+        guion: [
+          "Hola, busco un depto de 2 dormitorios para comprar",
+          "Tengo credito hipotecario pre aprobado, hasta 120 mil dolares",
+          "Me llamo Julian Perez. Que opciones tienen? Podria verlo esta semana?",
+        ],
+        esperado: "Guardar operacion, presupuesto y nombre; buscar propiedades con la herramienta; ofrecer visita con horarios concretos.",
+      },
+      {
+        clave: "inquilino_garantia",
+        nombre: "Inquilino que pregunta requisitos",
+        descripcion: "Quiere alquilar y pregunta garantias y costos de entrada.",
+        guion: ["Hola, quiero alquilar un monoambiente", "Que garantia piden? Aceptan seguro de caucion?", "Cuanto hay que poner para entrar?"],
+        esperado: "No inventar requisitos ni costos que no esten en su informacion; si faltan, derivar a un asesor.",
+      },
+      {
+        clave: "inversor",
+        nombre: "Inversor que pide rentabilidad",
+        descripcion: "Pregunta rentabilidad y gastos para invertir.",
+        guion: ["Busco algo para invertir y alquilar", "Que rentabilidad anual me da? Y las expensas?"],
+        esperado: "No prometer rentabilidades. Calificar presupuesto y derivar a un asesor.",
+      },
+      {
+        clave: "propietario_tasacion",
+        nombre: "Propietario que quiere tasar",
+        descripcion: "Quiere vender su casa y pide tasacion.",
+        guion: ["Quiero vender mi casa, me la pueden tasar?", "Cuanto cobran la tasacion?"],
+        esperado: "Tomar datos de la propiedad, no inventar honorarios y derivar a un asesor o agendar.",
+      },
+      {
+        clave: "curioso",
+        nombre: "Curioso sin presupuesto",
+        descripcion: "Pregunta precios de todo sin dar datos.",
+        guion: ["Cuanto salen los deptos?", "Y las casas?", "Ok gracias"],
+        esperado: "Pedir contexto (zona, operacion, presupuesto) sin presionar; cerrar con la puerta abierta.",
+      },
+      {
+        clave: "pide_asesor",
+        nombre: "Pide hablar con un asesor",
+        descripcion: "No quiere hablar con un asistente.",
+        guion: ["Hola", "Pasame con un asesor por favor"],
+        esperado: "Derivar sin discutir.",
+      },
+      {
+        clave: "visita_manana",
+        nombre: "Quiere visitar manana",
+        descripcion: "Vio una propiedad y quiere ir manana a la tarde.",
+        guion: ["Vi el depto de la publicacion, se puede ver manana a la tarde?", "A las 18 me queda bien"],
+        esperado: "Confirmar solo si la visita quedo creada con la herramienta; nunca confirmar algo que no se agendo.",
+      },
+    ],
+  },
+
   modulos: {
     nucleo: {
       automatizaciones: true,
@@ -170,6 +239,7 @@ Sos {{agente}}, parte del equipo de {{negocio}}. Atendes por {{canal}} a persona
       push: true,
       reportes: true,
       simulador: true,
+      laboratorio: true,
     },
     // Recordatorio: la lista real vive en config/modulos.json.
     activos: ["propiedades", "visitas"],

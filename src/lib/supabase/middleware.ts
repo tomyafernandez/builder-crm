@@ -16,6 +16,7 @@ const PUBLIC_API_PREFIXES = [
   "/api/agent",
   "/api/automations/process",
   "/api/simulador",
+  "/api/laboratorio",
   "/api/seed",
 ];
 

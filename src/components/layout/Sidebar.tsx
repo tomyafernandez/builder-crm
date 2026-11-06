@@ -15,6 +15,7 @@ import {
   FileText,
   Workflow,
   FlaskConical,
+  Gauge,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { marca, moduloActivo } from "@/lib/config";
@@ -73,6 +74,7 @@ function construirSecciones(esAdmin: boolean): NavSection[] {
         ...si(moduloActivo("reportes"), { href: "/reportes", label: "Reportes", icon: BarChart3 }),
         ...si(moduloActivo("automatizaciones"), { href: "/automatizaciones", label: "Automatizaciones", icon: Workflow }),
         ...si(esAdmin && moduloActivo("simulador"), { href: "/simulador", label: "Simulador", icon: FlaskConical }),
+        ...si(esAdmin && moduloActivo("laboratorio"), { href: "/laboratorio", label: "Laboratorio", icon: Gauge }),
         ...seccion("Inteligencia"),
       ],
     },

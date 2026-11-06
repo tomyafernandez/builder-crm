@@ -119,6 +119,18 @@ export async function PUT(request: NextRequest) {
         { status: 400 }
       );
     }
+    // Spec nucleo/17 (D5): con `laboratorio.exigir`, encender el agente en un canal
+    // real pide una corrida reciente del Laboratorio con el puntaje minimo.
+    if (body.enabled === true) {
+      const actual = await getAgentConfig(channel);
+      if (!actual.enabled) {
+        const { puedeEncender } = await import("@/lib/laboratorio/motor");
+        const gate = await puedeEncender(channel);
+        if (!gate.ok) {
+          return NextResponse.json({ error: gate.motivo, laboratorio: true }, { status: 409 });
+        }
+      }
+    }
     const saved = await saveAgentConfig(channel, {
       enabled: body.enabled,
       systemPrompt: body.systemPrompt === undefined ? undefined : prompt || null,

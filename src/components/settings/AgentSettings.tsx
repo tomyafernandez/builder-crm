@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import { CHANNELS, CHANNEL_LABELS, type Channel } from "@/lib/channels/types";
 import { CHANNEL_COLORS, ChannelIcon } from "@/components/icons/channels";
 
@@ -41,6 +42,7 @@ export function AgentSettings() {
   const [savingTools, setSavingTools] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [togglingEnabled, setTogglingEnabled] = useState(false);
+  const router = useRouter();
 
   const endpoint =
     scope === "global"
@@ -78,7 +80,15 @@ export function AgentSettings() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ enabled: next }),
       });
-      if (!res.ok) throw new Error("toggle_failed");
+      if (!res.ok) {
+        // 409 del Laboratorio (spec nucleo/17): el motivo se muestra tal cual.
+        const err = (await res.json().catch(() => ({}))) as { error?: string; laboratorio?: boolean };
+        if (err.laboratorio && err.error) {
+          toast.error(err.error, { action: { label: "Ir al Laboratorio", onClick: () => router.push("/laboratorio") } });
+          return;
+        }
+        throw new Error("toggle_failed");
+      }
       setConfig((prev) => (prev ? { ...prev, enabled: next } : prev));
       toast.success(
         next

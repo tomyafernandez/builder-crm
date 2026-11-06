@@ -541,3 +541,63 @@ export const documents = pgTable("documents", {
     .notNull()
     .defaultNow(),
 });
+
+// ============================================================
+// Laboratorio del agente (spec nucleo/17)
+// ============================================================
+
+/**
+ * Una corrida: N clientes simulados contra el agente REAL de un canal, juzgados por
+ * otro modelo. El puntaje es el porcentaje ponderado de casos verdes (verde 1,
+ * amarillo 0,5, rojo 0; los que el juez no pudo evaluar quedan fuera).
+ */
+export const labCorridas = pgTable("lab_corridas", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  tenantId: uuid("tenant_id").references(() => tenants.id),
+  channel: text("channel").notNull().default("whatsapp"),
+  /** en_curso | terminada | fallida */
+  estado: text("estado").notNull().default("en_curso"),
+  puntaje: integer("puntaje"),
+  modelo: text("modelo"),
+  modeloJuez: text("modelo_juez"),
+  /** El prompt con el que se probo: para saber que cambio entre una corrida y otra. */
+  prompt: text("prompt"),
+  creadoPor: uuid("creado_por").references(() => teamMembers.id, { onDelete: "set null" }),
+  error: text("error"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  finishedAt: timestamp("finished_at", { withTimezone: true }),
+});
+
+export const labCasos = pgTable("lab_casos", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  corridaId: text("corrida_id")
+    .notNull()
+    .references(() => labCorridas.id, { onDelete: "cascade" }),
+  orden: integer("orden").notNull(),
+  personaClave: text("persona_clave").notNull(),
+  personaNombre: text("persona_nombre").notNull(),
+  /** La persona completa tal como se uso (guion, descripcion, esperado). */
+  persona: jsonb("persona").notNull(),
+  /** Cuantas lineas del guion ya se mandaron. */
+  paso: integer("paso").notNull().default(0),
+  conversationId: text("conversation_id").references(() => conversations.id, { onDelete: "set null" }),
+  /** pendiente | conversando | juzgar | listo | juez_fallo | fallo */
+  estado: text("estado").notNull().default("pendiente"),
+  /** verde | amarillo | rojo */
+  veredicto: text("veredicto"),
+  hallazgos: jsonb("hallazgos"),
+  resumen: text("resumen"),
+  /**
+   * Copia de la conversacion y de lo que el agente dejo en el CRM. Se guarda aca porque
+   * el contacto de prueba se BORRA al juzgar el caso: el Laboratorio no deja leads
+   * falsos en la bandeja, el pipeline ni los reportes.
+   */
+  transcripcion: jsonb("transcripcion"),
+  estadoFinal: jsonb("estado_final"),
+  error: text("error"),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
