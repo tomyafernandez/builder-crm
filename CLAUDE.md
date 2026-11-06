@@ -120,6 +120,18 @@ un segundo. Lo que necesita base o navegador se prueba con `verificar-instancia`
   El agente agrega CONTEXTO (contacto, etapa, pipeline, datos a averiguar) y EQUIPO.
 - **La ventana de 24 h la decide el servidor** (`conversations.last_inbound_at`):
   IG/Messenger fuera de ventana van con `HUMAN_AGENT`; WhatsApp solo con plantilla.
+- **Secretos en la base van cifrados** (spec nucleo/12): todo secreto que se guarde en
+  una tabla se escribe con `cifrar()` y se lee con `descifrar()` de `src/lib/cifrado.ts`
+  (`ENCRYPTION_KEY`). La implementacion vive en `scripts/lib/cifrado.mjs` porque la usan
+  tambien el runner de migraciones y los scripts; nunca dupliques el formato.
+- **Modo pruebas** (spec nucleo/13): con `ALLOWED_WA_IDS` cargada no sale nada fuera de
+  la lista. Cualquier camino de salida nuevo tiene que pasar por `deliverMessage` (o
+  chequear `destinoPermitido` si abre conversacion por fuera, como `/api/whatsapp/send`).
+- **Un turno del agente por conversacion** (spec nucleo/14): `claimAgentJob` deja
+  esperando (`conversation_busy`) al job de un hilo que ya esta procesando, y el worker
+  lo libera al terminar. Las respuestas del agente guardan `raw_payload.agente.leidoHasta`
+  y el historial (`src/lib/agent/historial.ts`) ordena por eso: una respuesta del agente
+  solo salda lo que leyo. No vuelvas a ordenar el historial solo por `created_at`.
 - **Pausa del agente**: por conversacion (`PATCH /api/conversations/:id/agente`);
   el contacto tiene ademas un kill-switch global. `derivar_asesor` pausa solo el hilo.
 - **El proceso corre en UTC; la zona horaria sale de la configuracion.** El contenedor no

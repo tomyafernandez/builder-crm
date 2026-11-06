@@ -4,6 +4,52 @@ Que trae cada version de Builder CRM y que hacer para actualizar. SemVer segun l
 le importa a quien opera una instancia (ver "Versiones" en el [README](README.md)):
 mayor = pasos manuales, menor = funciones nuevas, parche = arreglos.
 
+## 2.2.0 — 2026-11-06
+
+Blindaje antes del primer cliente real. Varias ideas vienen de Vocero CRM (Kevin
+Belier, MIT): se reimplementaron sobre este nucleo a partir de sus specs, sin copiar
+codigo.
+
+### Actualizar desde 2.1.x
+
+1. Genera la clave de cifrado: `openssl rand -base64 32` (base64, NO hex) y cargala como
+   `ENCRYPTION_KEY` en Coolify (runtime) y en tu `.env.local`. **No la cambies despues**:
+   lo cifrado con una clave no se lee con otra. Guardala junto a las demas credenciales
+   del cliente.
+2. Redespliega. Al arrancar, el runner cifra los tokens de WhatsApp que esten en claro
+   y lo dice en el log. `/api/health` tiene que responder `"cifrado": true`.
+3. Opcional, para probar con el numero real del cliente: `ALLOWED_WA_IDS` con tus
+   numeros de prueba. `/api/health` responde `"soloNumerosPermitidos": true` mientras
+   este cargada; vaciala para abrir la instancia.
+
+Sin migraciones de esquema. Sin `ENCRYPTION_KEY` todo sigue andando como en 2.1, con un
+aviso en el log y `cifrado: false`.
+
+### Arreglado
+
+- **La imagen Docker no arrancaba.** `scripts/migrar.mjs` importa `./lib/migraciones.mjs`,
+  pero el Dockerfile solo copiaba `migrar.mjs`: el contenedor moria con "Cannot find
+  module" antes de servir y Coolify lo reiniciaba en bucle. Ahora copia `scripts/lib/`.
+  (En Vercel no se notaba porque ahi no corre el runner.)
+- **Un mensaje que llegaba mientras el agente pensaba podia quedar sin respuesta**
+  (spec 14). Ademas dos turnos del mismo hilo podian correr en paralelo. Ahora hay un
+  solo turno por conversacion, lo que espera se atiende apenas termina el anterior, y
+  una respuesta del agente solo da por contestado lo que el agente leyo.
+- **El agente podia quedarse callado ante un "Hola, prueba"** (spec 15). Las reglas del
+  nucleo (responder siempre, un mensaje por turno) van al final de cualquier prompt, y una
+  respuesta vacia se reintenta una vez.
+- **El webhook de Meta directo respondia 200 aunque no hubiera guardado el mensaje**
+  (spec 16). Ahora responde 500 y Meta lo reintenta; la idempotencia evita duplicados.
+
+### Nuevo
+
+- **Secretos cifrados en reposo** (spec 12): el token de WhatsApp de Meta directo se
+  guarda con AES-256-GCM (`ENCRYPTION_KEY`). `connect:whatsapp` se niega a guardarlo en
+  claro.
+- **Modo pruebas en vivo** (spec 13): `ALLOWED_WA_IDS` corta toda salida hacia destinos
+  fuera de la lista, por cualquier camino.
+- `/api/health` informa `cifrado` y `soloNumerosPermitidos`.
+
 ## 2.1.0 — 2026-10-30
 
 ### Actualizar desde 2.0.x
