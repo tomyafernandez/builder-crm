@@ -4,6 +4,38 @@ Que trae cada version de Builder CRM y que hacer para actualizar. SemVer segun l
 le importa a quien opera una instancia (ver "Versiones" en el [README](README.md)):
 mayor = pasos manuales, menor = funciones nuevas, parche = arreglos.
 
+## 2.3.0 — 2026-11-06
+
+El Laboratorio: medir al agente antes de encenderlo.
+
+### Actualizar desde 2.2.x
+
+Trae esta version y redespliega: la migracion `20261106000000_laboratorio.sql` crea
+`lab_corridas` y `lab_casos` sola al arrancar. Opcional:
+
+- `AGENT_JUDGE_MODEL`: modelo del juez (conviene uno mas capaz que el del agente). Si
+  falta, usa el del agente.
+- En `config/cliente.ts`, `laboratorio: { personas: [...], puntajeMinimo: 85, exigir: true }`
+  para usar clientes del nicho y exigir el puntaje antes de encender el agente.
+- `OPENROUTER_BASE_URL` para usar otro proveedor compatible con OpenAI.
+
+### Nuevo
+
+- **Laboratorio** (Inteligencia -> Laboratorio, solo admin; spec nucleo/17): clientes
+  simulados con guion fijo conversan con el agente REAL del canal, sin salir a ninguna
+  red; un juez evalua cada conversacion (verde, amarillo, rojo) con hallazgos y
+  sugerencias, y la corrida da un puntaje de 0 a 100 con la diferencia contra la
+  anterior. "Agregar al agente" suma la respuesta corregida a las preguntas frecuentes
+  del prompt. Funciona con el agente del canal apagado.
+- **Umbral para encender el agente**: con `laboratorio.exigir`, el agente no se enciende
+  en un canal sin una corrida que llegue al minimo.
+- La plantilla inmobiliaria trae 8 clientes de prueba propios del nicho.
+
+### Cambiado
+
+- Los contactos con etiqueta `laboratorio` no disparan automatizaciones ni aparecen en
+  la bandeja (se borran solos al terminar cada caso).
+
 ## 2.2.0 — 2026-11-06
 
 Blindaje antes del primer cliente real. Varias ideas vienen de Vocero CRM (Kevin

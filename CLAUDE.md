@@ -132,6 +132,11 @@ un segundo. Lo que necesita base o navegador se prueba con `verificar-instancia`
   lo libera al terminar. Las respuestas del agente guardan `raw_payload.agente.leidoHasta`
   y el historial (`src/lib/agent/historial.ts`) ordena por eso: una respuesta del agente
   solo salda lo que leyo. No vuelvas a ordenar el historial solo por `created_at`.
+- **Laboratorio** (spec nucleo/17): `src/lib/laboratorio/` corre clientes simulados contra
+  el agente real (`runAgentForConversation(id, { ignorarInterruptor: true })`, que solo
+  vale para conversaciones del simulador) y un juez puntua. Sus contactos llevan la
+  etiqueta `laboratorio`: fuera de la bandeja y de las automatizaciones, y se borran al
+  juzgar cada caso. Las personas del nicho van en `config/cliente.ts` -> `laboratorio`.
 - **Pausa del agente**: por conversacion (`PATCH /api/conversations/:id/agente`);
   el contacto tiene ademas un kill-switch global. `derivar_asesor` pausa solo el hilo.
 - **El proceso corre en UTC; la zona horaria sale de la configuracion.** El contenedor no
