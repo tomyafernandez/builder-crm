@@ -4,6 +4,23 @@ Que trae cada version de Builder CRM y que hacer para actualizar. SemVer segun l
 le importa a quien opera una instancia (ver "Versiones" en el [README](README.md)):
 mayor = pasos manuales, menor = funciones nuevas, parche = arreglos.
 
+## 2.5.1 — 2026-11-10
+
+### Actualizar desde 2.5.0
+
+Trae esta version y redespliega. En Vercel, `vercel.json` fija la region de las
+funciones (`regions`): tiene que ser la misma que la de la base de Supabase (`gru1` para
+`sa-east-1`). En Coolify no aplica.
+
+### Arreglado
+
+- **Cada clic tardaba segundos.** El middleware y `getCurrentMember` consultaban al
+  servidor de Auth en cada pedido (`getUser`), y `getCurrentMember` se resolvia varias
+  veces por render. Ahora usan `getClaims` (firma verificada sin red con claves
+  asimetricas) y `getCurrentMember` queda en cache por render.
+- En Vercel las funciones corrian en Washington (la region por defecto) contra una base
+  en Sao Paulo: cada consulta cruzaba el continente. `vercel.json` las fija en `gru1`.
+
 ## 2.5.0 — 2026-11-10
 
 ### Actualizar desde 2.4.x
