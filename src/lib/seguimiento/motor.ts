@@ -7,6 +7,7 @@ import { deliverMessage } from "@/lib/channels/deliver";
 import { getAgentConfig } from "@/lib/agent/config";
 import { getOpenRouterClient, hasOpenRouterKey } from "@/lib/agent/openrouter";
 import { renderSystemPrompt } from "@/lib/agent/prompt";
+import { pulirTexto } from "@/lib/agent/estilo";
 import type { Channel } from "@/lib/channels/types";
 import { PROVEEDOR_SIMULADOR } from "@/lib/simulador";
 import { decidirSeguimiento, medirSeguimientos, type Decision } from "./decidir";
@@ -113,7 +114,7 @@ Responde solo con el texto del mensaje.`;
     max_completion_tokens: 300,
   });
   const texto = r.choices[0]?.message?.content?.trim();
-  return texto ? texto.replace(/^["“]|["”]$/g, "") : null;
+  return texto ? pulirTexto(texto.replace(/^["“]|["”]$/g, ""), { sinSignosApertura: getConfig().agente.sinSignosApertura }) : null;
 }
 
 export async function correrSeguimientos(opciones: { soloSimulador?: boolean; ignorarEspera?: boolean } = {}): Promise<ResultadoCorrida> {

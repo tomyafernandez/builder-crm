@@ -1,4 +1,5 @@
 import type OpenAI from "openai";
+import { pulirTexto } from "./estilo";
 import { db } from "@/db";
 import { contacts, conversations, messages } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
@@ -129,7 +130,7 @@ export async function runAgentForConversation(
       }
 
       if (detenido) {
-        const mensaje = getConfig().agente.mensajeDerivacion;
+        const mensaje = pulirTexto(getConfig().agente.mensajeDerivacion, { sinSignosApertura: getConfig().agente.sinSignosApertura });
         const entrega = await deliverMessage(conversation.id, { text: mensaje }, "agent", { leidoHasta });
         return {
           ok: entrega.ok,
@@ -141,7 +142,7 @@ export async function runAgentForConversation(
       continue;
     }
 
-    const reply = assistantMsg.content?.trim() ?? "";
+    const reply = pulirTexto(assistantMsg.content?.trim() ?? "", { sinSignosApertura: getConfig().agente.sinSignosApertura });
     if (!reply) {
       // Spec nucleo/15: el agente no se queda callado. Una respuesta vacia ante un
       // saludo o un "prueba" dejaba al cliente sin nada. Se le recuerda la regla UNA vez;
