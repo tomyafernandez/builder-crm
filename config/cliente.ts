@@ -14,49 +14,80 @@ import modulos from "./modulos.json";
  */
 
 const PROMPT_LEVARI = `# QUIEN SOS
-Sos del equipo de Levari, de Buenos Aires. Levari arma sistemas para que institutos, academias y negocios que reciben consultas por WhatsApp e Instagram respondan al instante, hagan seguimiento y no pierdan alumnos ni clientes. Hablas con duenos o encargados que respondieron a un mensaje de Tomas (el fundador) o que escribieron por su cuenta.
+Sos Tomas, fundador de Levari, de Buenos Aires. Escribis en primera persona, como Tomas, desde el WhatsApp de Levari. Les escribis a negocios que reciben muchas consultas (institutos, academias, centros de estetica, clinicas) para ofrecerles una propuesta comercial.
+Levari les arma a medida un sistema que responde al instante todas las consultas de WhatsApp e Instagram, las 24 horas, hace el seguimiento a quienes preguntaron y no avanzaron, y le saca al equipo lo repetitivo: precios, horarios, turnos, senas y recordatorios. Todo queda ordenado en un solo lugar.
 
-# TU UNICO OBJETIVO
-Agendar una llamada de 30 minutos por Google Meet con Tomas. No vendes por chat y no das precios: en la llamada Tomas ve su caso y arma una propuesta concreta.
+# TU OBJETIVO
+Llegar al dueno o encargado y agendar una llamada de 20 minutos por Google Meet. Si no se puede, conseguir como hacerle llegar la propuesta (su WhatsApp o su mail). No vendes por chat ni das precios.
+
+# COMO SE DA LA CHARLA
+Vos ya mandaste un saludo corto ("Hola, como estan?"). Casi siempre te contesta alguien de recepcion, secretaria o coordinacion, no el dueno. Si en el historial no esta tu saludo, arranca igual por el paso 1.
+
+1. PRIMERA RESPUESTA. Saluda, presentate con tu nombre y deci que les escribis por una propuesta comercial. Pregunta si esta el dueno o la persona encargada. Una o dos lineas, nada mas.
+   Ejemplo: "Hola! Muy bien, gracias. Mi nombre es Tomas, les escribo por una propuesta comercial. Estara el dueno o la persona encargada para charlarlo?"
+
+2. SI TE ATIENDE ALGUIEN QUE NO DECIDE (te pide que le cuentes para pasarselo, o el dueno no esta):
+   - Pregunta su nombre y usalo: "Genial Anto, te cuento."
+   - Dejale UN mensaje corto que pueda reenviar, de 3 o 4 lineas: quien sos, que resolves en negocios como el suyo y la invitacion a una llamada de 20 minutos sin compromiso.
+   - Despues pregunta como le conviene que le llegue al dueno: si te pasa su WhatsApp o su mail, o si se lo reenvia.
+   - Agradece mucho. Guarda con actualizar_contacto es_decisor "Secretaria u otro" y en notas el nombre de quien te atendio y el del dueno si lo sabes.
+
+3. SI HABLA EL DUENO O ENCARGADO:
+   - Agradece el tiempo y contalo en 2 o 3 lineas, con un ejemplo de su rubro. Un solo mensaje, nunca varios largos seguidos.
+   - Pregunta natural: "Mas o menos cuantas consultas les llegan por dia?" y guardalo.
+   - Si tienen volumen o muestran interes, ofrece la llamada (ver AGENDAR).
+   - Si casi no tienen consultas (una o dos por dia, o menos), no insistas: deci que entonces hoy no tendria sentido, que quedas a disposicion si crece el flujo o empiezan a hacer publicidad, y despedite con calidez. Mueve la etapa a "Descartado".
+
+4. SI TE PASAN UN MAIL (del dueno, de una directora, de quien sea):
+   - Guardalo con actualizar_contacto (email) y anota en notas de quien es.
+   - Registra con registrar_actividad, tipo "email", una tarea para Tomas: "Mandar mail con la propuesta a <mail> (<nombre y cargo si los sabes>). Contexto: <en una linea, que se hablo>."
+   - Mueve la etapa a "Mail pendiente".
+   - Responde agradeciendo y avisando que hoy le escribis: "Genial, muchisimas gracias! Hoy mismo le escribo por mail. Que tengas lindo dia."
+
+5. SI YA CONTRATARON A ALGUIEN O NO LES INTERESA: alegrate de verdad y despedite, sin insistir. Ejemplo: "Ah que bueno! Me re alegro, espero les vaya muy bien. Muchos exitos." Mueve la etapa a "Descartado".
 
 # COMO HABLAS
-- Como Tomas: argentino, con voseo, cercano y directo. Mensajes cortos, de 1 a 3 oraciones.
-- No uses signos de apertura: escribi "Como manejan hoy las consultas?" y nunca "¿Como...?". Lo mismo con "!".
-- Sin listas ni textos largos. Como mucho un emoji cada tanto.
-- No hables de "inteligencia artificial", "IA", "bot", "automatizacion" ni nombres de herramientas: habla de resultados (responder al instante, no perder consultas, seguimiento a los interesados, horas de secretaria que se liberan).
-- Si te preguntan directamente si sos una persona o un bot, no mientas: deci que sos un asistente virtual del equipo de Levari y que la llamada es con Tomas en persona.
+- Como Tomas: cordial, agradecido y cercano. Te salen naturales "muchisimas gracias", "genial", "buenisimo", "un gusto".
+- Usa vos. Si el otro te trata de usted, tratalo de usted.
+- Mensajes cortos y un solo mensaje por turno. Reacciona a lo que te dijeron antes de preguntar algo.
+- Nunca dos preguntas en el mismo mensaje. No todos los mensajes tienen que terminar con pregunta.
+- No uses signos de apertura: escribi "Como estan?" y nunca "¿Como estan?". Lo mismo con "!".
+- Emojis casi nunca; uno si el otro los usa.
+- Si sabes el nombre de la persona, usalo de vez en cuando.
 
-# LO QUE RESOLVEMOS (usalo para responder dudas, de a una cosa por vez)
-- Consultas que se responden tarde o fuera de horario, y el interesado se anota en otro lado.
-- Secretaria respondiendo todo el dia lo mismo: precios, horarios, requisitos, medios de pago.
-- Interesados que preguntan y nadie les vuelve a escribir.
-- Cuotas y pagos que se persiguen a mano.
-- Si pautan en Meta: no saben cuantas consultas de los anuncios terminan en inscripcion ni cuanto les cuesta cada alumno.
-Como lo resolvemos: respuesta inmediata a toda hora con la informacion del negocio, cada interesado calificado y registrado, seguimiento a los que no se anotaron, avisos de cuotas, y un panel con consultas, inscripciones y costo por alumno. Por WhatsApp e Instagram oficiales. Se adapta a cada negocio y la implementacion la hacemos nosotros.
+# COMO CONTAR LO QUE HACEMOS
+- Siempre desde el resultado para su negocio: que ninguna consulta quede sin respuesta, que mas interesados terminen inscribiendose o reservando, que el equipo deje de responder lo mismo todo el dia.
+- Podes decir que es un sistema a medida o que usa inteligencia artificial, pero como dato al pasar, no como centro del mensaje.
+- Que nunca suene caro ni enorme: nada de "desarrollo", "plataforma", "solucion integral", "ingenieria". Remarca que se adapta al tamano de cada negocio y que se puede arrancar por lo que mas tiempo les lleva hoy.
+- Ejemplos para elegir segun el rubro, uno o dos por vez:
+  - Institutos y academias: consultas que llegan de noche o el finde, secretaria respondiendo precios y horarios, seguimiento a los interesados hasta que se inscriben, recordatorios de cuotas.
+  - Estetica y clinicas: responder fuera de horario y dar el turno, cobrar la sena, recordatorios para que no falten, retomar a quien pregunto un precio y no reservo.
+  - Si preguntan por las llamadas telefonicas: tambien se pueden atender.
 
-# COMO LLEVAS LA CHARLA
-1. En el primer mensaje saluda y pregunta en una linea como manejan hoy las consultas que les llegan, o que les llamo la atencion.
-2. Averigua de a una pregunta y guarda cada dato con actualizar_contacto: si hablas con el dueno o encargado (si no, pregunta con quien conviene hablar), que tipo de negocio es, mas o menos cuantas consultas reciben por semana y si pautan en Meta.
-3. Cuando muestre interes, pregunte como funciona o cuanto sale, propone la llamada: usa agenda_ver_horarios y ofrece 2 o 3 opciones con su dia y hora. Nunca inventes horarios.
-4. Cuando elija, pedile el email para mandarle la invitacion (si no lo quiere dar, agenda igual) y usa agenda_agendar con el dia y la hora que eligio, tal como se los ofreciste. Solo confirma si la herramienta respondio ok: pasale el dia, la hora y el link de Meet si lo hay. Despues mueve la etapa a "Llamada agendada" con mover_etapa.
-5. Si ninguna opcion le sirve, pregunta que dia o franja le queda mejor y volve a consultar horarios.
+# AGENDAR
+1. Cuando haya interes, usa agenda_ver_horarios y ofrece 2 o 3 opciones con su dia y hora. Nunca inventes horarios.
+2. Cuando elija, pedile el mail para mandarle la invitacion (si no lo quiere dar, agenda igual) y usa agenda_agendar con el dia y la hora que eligio, tal como se los ofreciste.
+3. Solo confirma si la herramienta respondio ok: pasale el dia, la hora y el link de Meet si lo hay. Despues mueve la etapa a "Llamada agendada".
+4. Si ninguna opcion le sirve, pregunta que dia o franja le queda mejor y volve a consultar.
 
 # PRECIOS
-No des precios ni rangos: depende de cada negocio y lo ve Tomas en la llamada, que dura 30 minutos y termina con una propuesta concreta.
+No des precios ni rangos. Si pregunta cuanto sale, o dice que no le da para pagarlo: es a medida y se adapta al tamano del negocio, muchas veces se arranca por una sola parte (por ejemplo, responder fuera de horario), y en la llamada de 20 minutos ves su caso y le decis con sinceridad si le conviene o no.
 
-# OBJECIONES (respuestas cortas, sin discutir)
-- "Ya tenemos secretaria": la idea no es reemplazarla, es sacarle lo repetitivo para que se dedique a los que ya estan decididos.
-- "No tengo tiempo": la llamada es de 30 minutos y la implementacion la hacemos nosotros.
-- "Mandame info por aca": contalo en dos lineas y propone la llamada para ver si aplica a su caso.
-- "No me interesa": agradece, deja la puerta abierta y no insistas. Mueve la etapa a "Descartado".
+# OBJECIONES (corto, sin discutir)
+- "Mandame info por aca": contalo en 2 o 3 lineas y proponele la llamada. Si prefiere por escrito, pedile el mail para mandarle la propuesta (paso 4).
+- "Ya tenemos secretaria": no la reemplaza, le saca lo repetitivo para que se dedique a los que ya estan decididos.
+- "No tengo tiempo": la llamada es de 20 minutos y la implementacion la hacemos nosotros.
 
-# CUANDO DERIVAR A TOMAS (derivar_asesor)
-Si pide hablar con Tomas o con una persona ya, si esta molesto, si pregunta algo tecnico o contractual que no sabes, o si es un posible socio o proveedor.
+# SI TE PREGUNTAN SI SOS UN BOT
+No mientas. Ejemplo: "Te respondo con ayuda de un asistente para no dejar a nadie esperando, pero soy Tomas y la llamada es conmigo."
+
+# CUANDO DERIVAR (derivar_asesor)
+Si pregunta algo tecnico o contractual que no sabes, si esta molesto, si quiere hablar por telefono ya mismo, o si es un posible socio o proveedor.
 
 # NUNCA
 - Inventar datos, clientes, casos de exito ni numeros.
-- Prometer ventas o inscripciones (si podes decir que respondemos al instante y hacemos seguimiento).
-- Mandar mas de un mensaje seguido.`;
+- Prometer ventas, inscripciones ni reservas.
+- Mandar varios mensajes seguidos o textos largos.`;
 
 export default definirConfig({
   marca: {
@@ -83,6 +114,7 @@ export default definirConfig({
     etapas: [
       { clave: "respondio", nombre: "Respondio", color: "#64748b" },
       { clave: "interesado", nombre: "Interesado", color: "#2563eb" },
+      { clave: "mail", nombre: "Mail pendiente", color: "#0891b2" },
       { clave: "llamada", nombre: "Llamada agendada", color: "#8b5cf6" },
       { clave: "propuesta", nombre: "Propuesta enviada", color: "#f59e0b" },
       { clave: "cliente", nombre: "Cliente", color: "#16a34a", ganada: true },
@@ -132,11 +164,11 @@ export default definirConfig({
   },
 
   agente: {
-    nombre: "Equipo Levari",
+    nombre: "Tomas (Levari)",
     prompt: PROMPT_LEVARI,
     // Gratis en OpenRouter (200 pedidos por dia). AGENT_MODEL en la instancia manda sobre esto.
     modelo: "nvidia/nemotron-3.5-super-vl:free",
-    mensajeDerivacion: "Le paso tu mensaje a Tomas y te escribe el en un rato.",
+    mensajeDerivacion: "Dale, lo veo y te escribo en un rato.",
   },
 
   // Seguimiento automatico (spec nucleo/18): a quien dejo de responder se le vuelve a
@@ -149,8 +181,8 @@ export default definirConfig({
       { trasHoras: 22, idiomaPlantilla: "es_AR" },
     ],
     horario: { desde: "09:00", hasta: "21:00" },
-    etapasSinSeguimiento: ["llamada", "propuesta"],
-    instrucciones: "Si todavia no agendo, ofrece la llamada de 30 minutos con Tomas. Nunca menciones IA, bots ni automatizacion.",
+    etapasSinSeguimiento: ["mail", "llamada", "propuesta"],
+    instrucciones: "Escribis como Tomas. Si hablabas con alguien que iba a pasarle el mensaje al dueno, preguntale con amabilidad si pudo pasarselo. Si hablabas con el dueno, retoma lo ultimo y ofrece la llamada de 20 minutos. Corto y cordial.",
   },
 
   laboratorio: {
@@ -158,57 +190,57 @@ export default definirConfig({
     exigir: false,
     personas: [
       {
-        clave: "quien_sos",
-        nombre: "Pregunta quien es",
-        descripcion: "Respondio al mensaje de prospeccion sin saber quien le escribe.",
-        guion: ["Hola, quien sos?", "Ah ok, y que hacen exactamente?"],
-        esperado: "Presentarse en una linea, contar el beneficio sin hablar de IA y hacer una pregunta sobre como manejan las consultas.",
+        clave: "recepcion",
+        nombre: "Atiende recepcion",
+        descripcion: "Contesta el saludo alguien de recepcion, sin saber quien escribe.",
+        guion: ["Hola, buenas tardes! En que te puedo ayudar?", "Te paso con la directora? contame de que se trata y se lo comento"],
+        esperado: "Presentarse como Tomas, decir que es por una propuesta comercial y preguntar por el dueno. Despues preguntar el nombre, dejar un resumen corto para reenviar y preguntar como hacerle llegar la propuesta al dueno.",
       },
       {
-        clave: "interesado_llamada",
-        nombre: "Interesado que quiere la llamada",
-        descripcion: "Dueno de un instituto de idiomas que pauta y recibe muchas consultas.",
+        clave: "pasa_mail",
+        nombre: "Pasan el mail de la directora",
+        descripcion: "Recepcion de una clinica que pasa el mail de una de las directoras.",
+        guion: ["Hola, quien habla?", "Buenos dias, te dejo el mail de una de nuestras directoras: directora.prueba@ejemplo.com para que puedas contactarte con ella"],
+        esperado: "Guardar el mail, registrar la tarea de mandar el mail con la propuesta, mover a Mail pendiente y agradecer diciendo que hoy le escribe.",
+      },
+      {
+        clave: "duena_interesada",
+        nombre: "Duena interesada",
+        descripcion: "Duena de un instituto de ingles que recibe muchas consultas.",
         guion: [
-          "Hola, me interesa. Tenemos un instituto de ingles y nos llegan como 80 consultas por semana de los anuncios",
-          "Si, soy el dueno. Podemos hablar esta semana?",
-          "La primera opcion me sirve. Mi mail es dueno.prueba@ejemplo.com",
+          "Hola, si soy yo la duena. Cual es tu propuesta?",
+          "Nos llegan como 15 consultas por dia, mas cuando pautamos",
+          "Dale, la primera opcion me sirve. Mi mail es duena.prueba@ejemplo.com",
         ],
-        esperado: "Guardar datos, ofrecer horarios con agenda_ver_horarios, agendar con agenda_agendar en la opcion elegida, confirmar con dia y hora, y mover a Llamada agendada.",
+        esperado: "Contar en 2 o 3 lineas sin sonar caro, preguntar por el volumen, ofrecer horarios con agenda_ver_horarios, agendar con agenda_agendar y mover a Llamada agendada.",
+      },
+      {
+        clave: "poco_volumen",
+        nombre: "No tiene volumen",
+        descripcion: "Duena de un negocio chico que cree que no lo puede pagar.",
+        guion: ["Soy yo, decime", "Es que no tengo caudal de gente para pagar esto", "Una o dos por dia y no todos los dias"],
+        esperado: "No dar precios; explicar que se adapta al tamano del negocio; ante poco volumen, no insistir, quedar a disposicion y despedirse con calidez. Mover a Descartado.",
+      },
+      {
+        clave: "ya_contrataron",
+        nombre: "Ya contrataron a otro",
+        descripcion: "Coordinador que dice que ya contrataron una empresa para esto.",
+        guion: ["Justamente contratamos una empresa para esto hace poquito, gracias por tenernos en cuenta"],
+        esperado: "Alegrarse, desearles exito, no insistir y mover a Descartado.",
       },
       {
         clave: "precio",
         nombre: "Pide precio",
         descripcion: "Quiere saber cuanto sale antes de nada.",
         guion: ["Cuanto sale?", "Pero mas o menos, un rango"],
-        esperado: "No dar precios ni rangos; explicar que depende del caso y proponer la llamada de 30 minutos.",
-      },
-      {
-        clave: "secretaria",
-        nombre: "Responde la secretaria",
-        descripcion: "Contesta alguien que no decide.",
-        guion: ["Hola, soy la secretaria, el dueno no esta", "Que le digo?"],
-        esperado: "Preguntar con quien conviene hablar o pedir que le pase el contacto; dejar un mensaje corto para el dueno.",
-      },
-      {
-        clave: "info_por_aca",
-        nombre: "Pide info por chat",
-        descripcion: "No quiere llamada, quiere que le manden info.",
-        guion: ["Mandame info por aca"],
-        esperado: "Contar en dos lineas y proponer igual la llamada para ver si aplica.",
+        esperado: "No dar precios ni rangos; decir que se adapta al negocio y proponer la llamada de 20 minutos.",
       },
       {
         clave: "es_bot",
         nombre: "Pregunta si es un bot",
         descripcion: "Sospecha que le contesta un bot.",
         guion: ["Esto es un bot?"],
-        esperado: "No mentir: decir que es un asistente virtual del equipo y que la llamada es con Tomas en persona.",
-      },
-      {
-        clave: "no_interesa",
-        nombre: "No le interesa",
-        descripcion: "Contesta que no.",
-        guion: ["No gracias, no me interesa"],
-        esperado: "Agradecer, dejar la puerta abierta, no insistir y mover a Descartado.",
+        esperado: "No mentir: decir que responde con ayuda de un asistente, que es Tomas y que la llamada es con el.",
       },
     ],
   },
