@@ -15,6 +15,7 @@ const PUBLIC_API_PREFIXES = [
   "/api/webhooks",
   "/api/agent",
   "/api/automations/process",
+  "/api/seguimientos/process",
   "/api/simulador",
   "/api/laboratorio",
   "/api/seed",

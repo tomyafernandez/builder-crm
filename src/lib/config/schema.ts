@@ -195,6 +195,40 @@ const esquemaLaboratorio = z.object({
 
 export type PersonaLab = z.infer<typeof esquemaPersonaLab>;
 
+/**
+ * Seguimiento automatico (spec nucleo/18): si el cliente dejo de responder, el sistema
+ * le vuelve a escribir segun lo que habia preguntado. Las horas se cuentan desde el
+ * ULTIMO MENSAJE DEL CLIENTE. Dentro de las 24 h se escribe libre (lo redacta el
+ * agente); despues, en WhatsApp solo con una plantilla aprobada por Meta, y en
+ * Instagram/Messenger no se manda nada.
+ */
+const hhmm = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Formato HH:MM");
+const esquemaSeguimiento = z.object({
+  /** Apagado por defecto: escribe solo a clientes reales, se enciende a proposito. */
+  activo: z.boolean().default(false),
+  pasos: z
+    .array(
+      z.object({
+        trasHoras: z.number().min(0.5).max(24 * 30),
+        /** Plantilla aprobada de WhatsApp para pasos fuera de la ventana de 24 h. */
+        plantilla: z.string().min(1).optional(),
+        idiomaPlantilla: z.string().default("es_AR"),
+      })
+    )
+    .min(1)
+    .max(5)
+    .default([
+      { trasHoras: 3, idiomaPlantilla: "es_AR" },
+      { trasHoras: 22, idiomaPlantilla: "es_AR" },
+    ]),
+  /** Solo se envia dentro de este horario (zona de la instancia). */
+  horario: z.object({ desde: hhmm, hasta: hhmm }).default({ desde: "09:00", hasta: "21:00" }),
+  /** Claves de etapas donde NO se hace seguimiento (ademas de ganadas y perdidas). */
+  etapasSinSeguimiento: z.array(z.string()).default([]),
+  /** Indicaciones extra para redactar los seguimientos (tono, que ofrecer). */
+  instrucciones: z.string().max(1500).optional(),
+});
+
 export const esquemaConfig = z.object({
   marca: esquemaMarca,
   idioma: z.enum(["es", "en"]).default("es"),
@@ -234,6 +268,16 @@ export const esquemaConfig = z.object({
   }),
   /** Datos de demostracion del nicho. Sin esto, la demo del nucleo es generica. */
   demo: esquemaDemo.optional(),
+  /** Seguimiento automatico a quienes dejaron de responder. Ver spec nucleo/18. */
+  seguimiento: esquemaSeguimiento.default({
+    activo: false,
+    pasos: [
+      { trasHoras: 3, idiomaPlantilla: "es_AR" },
+      { trasHoras: 22, idiomaPlantilla: "es_AR" },
+    ],
+    horario: { desde: "09:00", hasta: "21:00" },
+    etapasSinSeguimiento: [],
+  }),
   /** Laboratorio del agente: personas del nicho y puntaje minimo. Ver spec nucleo/17. */
   laboratorio: esquemaLaboratorio.default({ puntajeMinimo: 85, exigir: false }),
   /** Funciones del nucleo apagables + modulos de `modules/` por nombre de carpeta. */

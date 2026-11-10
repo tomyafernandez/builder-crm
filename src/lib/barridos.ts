@@ -14,6 +14,9 @@ const ENDPOINTS = [
   "/api/agent/process",
   "/api/webhooks/zernio",
   "/api/automations/process",
+  // Spec nucleo/18: el seguimiento automatico depende de este barrido para salir a
+  // tiempo (no hay evento que lo dispare: lo dispara el silencio del cliente).
+  "/api/seguimientos/process",
 ];
 
 declare global {

@@ -16,6 +16,7 @@ import {
   Workflow,
   FlaskConical,
   Gauge,
+  Repeat,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { marca, moduloActivo } from "@/lib/config";
@@ -65,6 +66,7 @@ function construirSecciones(esAdmin: boolean): NavSection[] {
       title: "Productividad",
       items: [
         ...si(moduloActivo("actividades"), { href: "/activities", label: "Actividades", icon: Activity }),
+        ...si(esAdmin, { href: "/seguimientos", label: "Seguimientos", icon: Repeat }),
         ...seccion("Productividad"),
       ],
     },

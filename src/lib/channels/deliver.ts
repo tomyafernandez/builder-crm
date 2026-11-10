@@ -36,6 +36,8 @@ export interface DeliverOpciones {
    * contestado un mensaje que el cliente mando mientras el agente pensaba.
    */
   leidoHasta?: Date | null;
+  /** Spec nucleo/18: numero de paso si este envio es un seguimiento automatico. */
+  seguimiento?: number;
 }
 
 export async function getConversationRow(
@@ -99,9 +101,13 @@ export async function deliverMessage(
       body,
       templateName: msg.template?.name ?? null,
       status: "pending",
-      rawPayload: opciones.leidoHasta
-        ? { agente: { leidoHasta: opciones.leidoHasta.toISOString() } }
-        : null,
+      rawPayload:
+        opciones.leidoHasta || opciones.seguimiento
+          ? {
+              ...(opciones.leidoHasta ? { agente: { leidoHasta: opciones.leidoHasta.toISOString() } } : {}),
+              ...(opciones.seguimiento ? { seguimiento: { paso: opciones.seguimiento } } : {}),
+            }
+          : null,
       tenantId: conversation.tenantId,
       toPhone:
         conversation.channel === "whatsapp" ? conversation.participantId : null,

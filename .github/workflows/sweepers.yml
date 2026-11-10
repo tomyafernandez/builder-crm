@@ -29,6 +29,8 @@
 #  - /api/webhooks/zernio -> eventos de Zernio reclamados pero sin procesar. El reintento
 #    de Zernio se auto-deduplica, asi que sin este barrido esos eventos se pierden.
 #  - /api/automations/process -> automatizaciones encoladas.
+#  - /api/seguimientos/process -> seguimiento automatico a quienes dejaron de responder
+#    (spec nucleo/18). En Vercel, sin este workflow encendido sale una vez por dia.
 
 name: Sweepers
 
@@ -77,3 +79,10 @@ jobs:
           curl -sS -m 60 -o /dev/null -w "automations/process -> %{http_code}\n" \
             -H "Authorization: Bearer $SECRETO" \
             "$BASE/api/automations/process"
+
+      - name: Enviar seguimientos automaticos
+        if: steps.config.outputs.listo == 'true'
+        run: |
+          curl -sS -m 60 -o /dev/null -w "seguimientos/process -> %{http_code}\n" \
+            -H "Authorization: Bearer $SECRETO" \
+            "$BASE/api/seguimientos/process"
