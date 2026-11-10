@@ -4,6 +4,24 @@ Que trae cada version de Builder CRM y que hacer para actualizar. SemVer segun l
 le importa a quien opera una instancia (ver "Versiones" en el [README](README.md)):
 mayor = pasos manuales, menor = funciones nuevas, parche = arreglos.
 
+## 2.5.0 — 2026-11-10
+
+### Actualizar desde 2.4.x
+
+Trae esta version y redespliega (sin migraciones). Para encender el seguimiento:
+`seguimiento: { activo: true, ... }` en `config/cliente.ts`. En Coolify sale solo cada
+SWEEP_INTERVAL_MIN; en Vercel hace falta encender el workflow `sweepers.yml` (si no, sale
+una vez por dia).
+
+### Nuevo
+
+- **Seguimiento automatico** (spec nucleo/18): a quien dejo de responder se le vuelve a
+  escribir segun lo que habia preguntado, en los plazos configurados (por defecto 3 h y
+  22 h desde su ultimo mensaje), dentro del horario del negocio. Fuera de las 24 h solo
+  con plantilla aprobada en WhatsApp. Se frena si responde, si se deriva o si la etapa se
+  cierra. Pagina Seguimientos con enviados y conversaciones recuperadas, y prueba en el
+  simulador.
+
 ## 2.4.0 — 2026-11-06
 
 ### Actualizar desde 2.3.x
