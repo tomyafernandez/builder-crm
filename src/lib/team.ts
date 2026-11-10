@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { db } from "@/db";
 import { contacts, teamMembers } from "@/db/schema";
 import { asc, eq, type SQL } from "drizzle-orm";
@@ -47,7 +48,9 @@ function toMember(row: typeof teamMembers.$inferSelect): TeamMember {
  * alguien que quedo fuera (desactivado, o se colo por un signup abierto). Se lo
  * trata como no autorizado.
  */
-export async function getCurrentMember(): Promise<TeamMember | null> {
+// cache(): la pagina, el layout y cada componente de servidor que lo pidan en el mismo
+// render comparten UNA lectura de sesion y UNA consulta a team_members.
+export const getCurrentMember = cache(async function getCurrentMember(): Promise<TeamMember | null> {
   // Modo local: no hay sesion que leer. El administrador de mentira lo crea
   // `npm run local` por el mismo camino que el primer admin de una instancia real (el
   // disparador sobre auth.users), asi que se lee de la base como cualquier otro.
@@ -61,20 +64,20 @@ export async function getCurrentMember(): Promise<TeamMember | null> {
   }
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
+  // Firma verificada (ver middleware): `sub` es el id del usuario de Auth.
+  const { data } = await supabase.auth.getClaims();
+  const userId = data?.claims?.sub;
+  if (!userId) return null;
 
   const [row] = await db
     .select()
     .from(teamMembers)
-    .where(eq(teamMembers.id, user.id))
+    .where(eq(teamMembers.id, userId))
     .limit(1);
 
   if (!row || !row.active) return null;
   return toMember(row);
-}
+});
 
 export async function listMembers(opts?: {
   onlyActive?: boolean;

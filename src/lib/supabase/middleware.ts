@@ -51,9 +51,11 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims y no getUser: verifica la firma del token sin ir al servidor de Auth en
+  // cada pedido (con claves de firma asimetricas usa el JWKS en cache; con la clave
+  // vieja cae solo a getUser). getUser sumaba un viaje de red a CADA clic.
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims?.sub ? data.claims : null;
 
   const { pathname } = request.nextUrl;
   const isPublicPath = PUBLIC_PATHS.some(
