@@ -139,6 +139,20 @@ export default definirConfig({
     mensajeDerivacion: "Le paso tu mensaje a Tomas y te escribe el en un rato.",
   },
 
+  // Seguimiento automatico (spec nucleo/18): a quien dejo de responder se le vuelve a
+  // escribir a las 3 h y a las 22 h de su ultimo mensaje (dentro de las 24 h de WhatsApp,
+  // sin plantilla). No se sigue a quien ya tiene la llamada agendada o la propuesta.
+  seguimiento: {
+    activo: true,
+    pasos: [
+      { trasHoras: 3, idiomaPlantilla: "es_AR" },
+      { trasHoras: 22, idiomaPlantilla: "es_AR" },
+    ],
+    horario: { desde: "09:00", hasta: "21:00" },
+    etapasSinSeguimiento: ["llamada", "propuesta"],
+    instrucciones: "Si todavia no agendo, ofrece la llamada de 30 minutos con Tomas. Nunca menciones IA, bots ni automatizacion.",
+  },
+
   laboratorio: {
     puntajeMinimo: 85,
     exigir: false,
