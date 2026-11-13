@@ -4,6 +4,36 @@ Que trae cada version de Builder CRM y que hacer para actualizar. SemVer segun l
 le importa a quien opera una instancia (ver "Versiones" en el [README](README.md)):
 mayor = pasos manuales, menor = funciones nuevas, parche = arreglos.
 
+## 2.6.0 — 2026-11-13
+
+### Actualizar desde 2.5.x
+
+Trae esta version y redespliega. Si la agenda esta activa hay una migracion nueva
+(`modules/agenda/migrations/0001_sena_y_recordatorios.sql`, aditiva): en Coolify corre
+sola al arrancar; en Vercel, `npm run db:migrar` local con `ENCRYPTION_KEY` exportada. En
+Vercel, para que los recordatorios salgan a tiempo, el workflow `sweepers.yml` suma el
+paso `/api/modulos/barridos` (sin el, sale una vez por dia por `vercel.json`).
+
+Sin tocar la configuracion no cambia nada a la vista: servicios, sena, recordatorio y la
+tarjeta de retorno arrancan apagados. El agente si ve tres tools nuevas de la agenda
+(`agenda_mis_turnos`, `agenda_confirmar_asistencia`, `agenda_reprogramar`), que solo
+actuan sobre turnos que ya existen.
+
+### Nuevo
+
+- **Contrato de modulos** (spec nucleo/19): `barrido` (trabajo periodico, con
+  `GET /api/modulos/barridos` y botones de prueba), `metricasPanel` (lineas para la tarjeta
+  de retorno) y paginas/API **sin login** en `/m/<modulo>/publico/...`.
+- **Agenda con sena**: servicios con precio, sena en % con plazo para pagarla, pagina de
+  pago de prueba, turno confirmado y evento en Google al pagar, reservas vencidas que
+  liberan el horario y avisan, recordatorio del dia anterior pidiendo confirmacion, y
+  reprogramacion por el agente conservando la sena.
+- **Tarjeta "Lo que te dejo el sistema"** en el panel (admin): horas ahorradas, recuperado
+  por seguimiento, ausencias evitadas (estimado) y senas cobradas, cada una con su cuenta.
+  Supuestos en `config.retorno` (apagada por defecto).
+- El **Simulador** trae cada 5 s lo que sale sin que el cliente escriba (confirmacion de
+  un pago, recordatorio, seguimiento).
+
 ## 2.5.1 — 2026-11-10
 
 ### Actualizar desde 2.5.0
