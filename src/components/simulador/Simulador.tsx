@@ -71,6 +71,23 @@ export function Simulador() {
     finRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [mensajes.length, ocupado]);
 
+  // Lo que sale sin que el cliente escriba (confirmacion de un pago, recordatorio,
+  // seguimiento) llega por un barrido o por otra pagina: se trae cada 5 s.
+  useEffect(() => {
+    if (!conversationId || ocupado) return;
+    const id = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/conversations/${conversationId}/messages`, { cache: "no-store" });
+        if (!res.ok) return;
+        const data = (await res.json()) as { messages?: Mensaje[] };
+        if (data.messages) setMensajes((prev) => (data.messages!.length !== prev.length ? data.messages! : prev));
+      } catch {
+        /* reintenta en la proxima vuelta */
+      }
+    }, 5000);
+    return () => clearInterval(id);
+  }, [conversationId, ocupado]);
+
   const cargarEstado = async (id: string) => {
     try {
       const res = await fetch(`/api/contacts/${id}`, { cache: "no-store" });
