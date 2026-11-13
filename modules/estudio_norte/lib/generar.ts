@@ -6,8 +6,8 @@
  */
 
 export const SERVICIOS = [
-  { nombre: "Primera consulta", precioCentavos: 4000, peso: 43 },
-  { nombre: "Sesión individual", precioCentavos: 8000, peso: 50 },
+  { nombre: "Primera consulta", precioCentavos: 4000, peso: 36 },
+  { nombre: "Sesión individual", precioCentavos: 8000, peso: 57 },
   { nombre: "Plan mensual (4 sesiones)", precioCentavos: 28000, peso: 7 },
 ];
 const CAMPO_SERVICIO: Record<string, string> = {
@@ -151,8 +151,8 @@ export function generar(ahoraMs: number, urlPago: (i: number) => string, semilla
       const viejoDias = (ahoraMs - creada) / 86_400_000;
 
       if (x < 0.075) {
-        // Reservo. Un 13% de las reservas sale de una conversacion recuperada por el seguimiento.
-        const recuperada = r() < 0.13;
+        // Reservo. Cerca del 10% de las reservas sale de una conversacion recuperada por el seguimiento.
+        const recuperada = r() < 0.075;
         m("in", elegir(ABRE), 0);
         m("out", precios, 1);
         let t = 3;
@@ -199,7 +199,7 @@ export function generar(ahoraMs: number, urlPago: (i: number) => string, semilla
           if (rec < ahoraMs && rec > pagada) {
             recordatorio = rec;
             fila.mensajes.push({ dir: "out", origen: "agent", body: `Hola ${nombre.split(" ")[0]}, te recuerdo tu turno de ${s.nombre.toLowerCase()} mañana a las ${String(partesBA(inicio).h).padStart(2, "0")}:00. Me confirmás que venís?`, at: rec });
-            if (r() < 0.75) {
+            if (r() < 0.56) {
               confirmo = rec + (10 + Math.floor(r() * 90)) * 60_000;
               if (confirmo < ahoraMs) {
                 fila.mensajes.push({ dir: "in", body: elegir(["Sí, voy!", "Sí, ahí estaré", "Confirmo, gracias!", "Sí sí, voy"]), at: confirmo });
@@ -217,7 +217,7 @@ export function generar(ahoraMs: number, urlPago: (i: number) => string, semilla
         fila.campos = { servicio_interes: CAMPO_SERVICIO[s.nombre], primera_vez: s.nombre === "Primera consulta" ? "Sí" : "No", para_cuando: "Esta semana" };
         fila.etapa = { asistio: "cliente", ausente: "perdido", cancelada: "perdido", vencida: "perdido", confirmada: "turno_confirmado", pendiente_sena: "sena_pendiente" }[estado];
         fila.valor = s.precioCentavos;
-      } else if (x < 0.13) {
+      } else if (x < 0.09) {
         // Recuperada por el seguimiento, todavia sin turno.
         m("in", elegir(ABRE), 0);
         m("out", precios, 1);

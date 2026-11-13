@@ -21,7 +21,9 @@ Lo unico simulado: los canales (Simulador) y el pago de la sena (pagina de prueb
   Cliente (ganada) / Perdido (perdida).
 - Campos: servicio de interes, para cuando, primera vez.
 - Seguimiento a las 3 h y 22 h; no a quien espera la sena o ya tiene el turno.
-- Retorno: 3 min por mensaje, 15% de ausencia sin recordatorio.
+- Retorno, con los numeros del caso de la web (levari-web/casos): 1,5 min por mensaje (~160 h
+  al mes = una persona de jornada completa, sueldo de referencia USD 700; conservador a
+  proposito), 15% de ausencia sin recordatorio. Las senas se muestran aparte y no suman.
 
 ## Donde vive
 
@@ -45,7 +47,9 @@ Lo unico simulado: los canales (Simulador) y el pago de la sena (pagina de prueb
 ## Criterios de aceptacion
 
 - [x] `npm test && npm run typecheck && npm run lint && npm run build` en verde en `demo`.
-- [x] El seed deja ~58 consultas por dia, ticket ~USD 78 y un retorno de ~USD 2.400 en 30 dias.
+- [x] El seed deja ~60 consultas por dia, ticket ~USD 79, ~160 h ahorradas (~USD 700), ~12
+  turnos recuperados, ~USD 640 de ausencias evitadas y un total cercano a USD 2.100-2.300 en
+  30 dias (la web dice ~USD 2.300). Varia unos cientos segun el dia en que se siembra.
 - [ ] Recorrido completo en la demo publicada, con capturas.
 
 ## Constitution Check

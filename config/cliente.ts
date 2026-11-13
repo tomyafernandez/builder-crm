@@ -130,11 +130,15 @@ export default definirConfig({
       "Sin saludar de nuevo. Retomá lo que preguntó (el servicio, el precio o el horario) y ofrecé ver horarios para esta semana. Corto y cálido.",
   },
 
-  // Tarjeta "Lo que te dejo el sistema" (spec nucleo/19): supuestos de Estudio Norte.
+  // Tarjeta "Lo que te dejo el sistema" (spec nucleo/19), con los numeros del caso de la
+  // web de Levari: ~160 h al mes (1,5 min por mensaje) = una persona de jornada completa (sueldo de referencia
+  // USD 700). Conservador a proposito: en la realidad puede ser el trabajo de dos.
   retorno: {
     activo: true,
-    minutosPorMensaje: 3,
+    minutosPorMensaje: 1.5,
     tasaAusencia: 0.15,
+    sueldoReferenciaCentavos: 70000,
+    horasJornadaMes: 160,
   },
 
   laboratorio: {
