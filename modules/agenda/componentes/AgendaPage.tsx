@@ -1,29 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { CalendarCheck, ExternalLink, Link2, Loader2, Unlink, Video, X } from "lucide-react";
+import { BellRing, CalendarCheck, Link2, Loader2, TimerOff, Unlink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-
-interface Cita {
-  id: string;
-  contactId: string;
-  inicio: string;
-  fin: string;
-  estado: string;
-  titulo: string;
-  emailInvitado: string | null;
-  notas: string | null;
-  origen: string;
-  meetLink: string | null;
-  googleLink: string | null;
-  contactName: string | null;
-  contactPhone: string | null;
-}
+import { FilaCita, type CitaVista as Cita } from "./FilaCita";
+import { AjustesCobro, type AjustesCobroVista } from "./AjustesCobro";
 
 interface Panel {
   ajustes: {
@@ -35,7 +21,7 @@ interface Panel {
     diasAdelante: number;
     titulo: string;
     descripcion: string | null;
-  };
+  } & AjustesCobroVista;
   zona: string;
   google: { configurado: boolean; conectado: boolean; email: string | null; cifrado: boolean };
   esAdmin: boolean;
@@ -111,10 +97,25 @@ export function AgendaPage() {
     } else toast.error("No se pudo cancelar");
   };
 
-  const proximas = (panel?.citas ?? []).filter((c) => c.estado === "agendada" && new Date(c.fin).getTime() >= ahora).reverse();
+  const probar = async (accion: "recordatorios" | "vencer") => {
+    const res = await fetch(`${API}/probar`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ accion }) });
+    const data = (await res.json().catch(() => ({}))) as { enviados?: number; detalle?: Array<{ resultado: string }>; error?: string };
+    if (!res.ok) return toast.error(data.error ?? "No se pudo correr la prueba");
+    const n = data.enviados ?? 0;
+    toast.success(
+      accion === "vencer"
+        ? n ? `${n} reserva${n === 1 ? "" : "s"} vencida${n === 1 ? "" : "s"}` : "No hay reservas del simulador esperando la seña"
+        : n ? `${n} recordatorio${n === 1 ? "" : "s"} enviado${n === 1 ? "" : "s"}` : data.detalle?.[0]?.resultado ?? "No hay turnos del simulador para recordar"
+    );
+    void cargar();
+  };
+
+  const ACTIVAS = ["agendada", "confirmada", "pendiente_sena"];
+  const proximas = (panel?.citas ?? []).filter((c) => ACTIVAS.includes(c.estado) && new Date(c.fin).getTime() >= ahora).reverse();
   const pasadas = (panel?.citas ?? []).filter((c) => !proximas.includes(c)).slice(0, 20);
   const fmt = (iso: string) =>
     new Intl.DateTimeFormat("es-AR", { timeZone: panel?.zona, weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(iso));
+  const hora = (iso: string) => new Intl.DateTimeFormat("es-AR", { timeZone: panel?.zona, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(iso));
 
   return (
     <div>
@@ -131,7 +132,7 @@ export function AgendaPage() {
               {!panel && <Loader2 className="h-4 w-4 animate-spin" />}
               {panel && proximas.length === 0 && <p className="text-muted-foreground">No hay citas agendadas.</p>}
               {proximas.map((c) => (
-                <FilaCita key={c.id} cita={c} fecha={fmt(c.inicio)} onCancelar={() => cancelarCita(c.id)} />
+                <FilaCita key={c.id} cita={c} fecha={fmt(c.inicio)} hora={hora} onCancelar={() => cancelarCita(c.id)} />
               ))}
             </CardContent>
           </Card>
@@ -142,7 +143,7 @@ export function AgendaPage() {
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
                 {pasadas.map((c) => (
-                  <FilaCita key={c.id} cita={c} fecha={fmt(c.inicio)} />
+                  <FilaCita key={c.id} cita={c} fecha={fmt(c.inicio)} hora={hora} />
                 ))}
               </CardContent>
             </Card>
@@ -151,6 +152,25 @@ export function AgendaPage() {
 
         {panel?.esAdmin && ajustes && (
           <div className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Probar ahora (solo simulador)</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm">
+                <p className="text-xs text-muted-foreground">
+                  Solo toca turnos de contactos creados en el Simulador y no espera los plazos. Sirve para mostrar el sistema sin esperar horas.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Button size="sm" variant="outline" onClick={() => probar("recordatorios")} className="cursor-pointer">
+                    <BellRing className="h-3.5 w-3.5" /> Probar recordatorios ahora
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => probar("vencer")} className="cursor-pointer">
+                    <TimerOff className="h-3.5 w-3.5" /> Vencer reservas ahora
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Google Calendar</CardTitle>
@@ -227,6 +247,7 @@ export function AgendaPage() {
                   <Input value={ajustes.titulo} onChange={(e) => setAjustes({ ...ajustes, titulo: e.target.value })} />
                 </Campo>
                 <p className="text-xs text-muted-foreground">Zona horaria: {panel.zona} (se cambia en config/cliente.ts).</p>
+                <AjustesCobro valor={ajustes} onChange={(v) => setAjustes({ ...ajustes, ...v })} />
                 <Button size="sm" onClick={guardar} disabled={guardando} className="cursor-pointer">
                   {guardando && <Loader2 className="h-3.5 w-3.5 animate-spin" />} Guardar
                 </Button>
@@ -245,37 +266,5 @@ function Campo({ etiqueta, children }: { etiqueta: string; children: React.React
       <span className="text-xs text-muted-foreground">{etiqueta}</span>
       {children}
     </label>
-  );
-}
-
-function FilaCita({ cita, fecha, onCancelar }: { cita: Cita; fecha: string; onCancelar?: () => void }) {
-  return (
-    <div className={cn("flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border px-3 py-2", cita.estado === "cancelada" && "opacity-60")}>
-      <span className="font-medium w-40 shrink-0">{fecha}</span>
-      <a href={`/contacts/${cita.contactId}`} className="hover:underline">
-        {cita.contactName ?? "Contacto"}
-      </a>
-      <span className="text-xs text-muted-foreground">
-        {cita.origen === "agente" ? "agendo el agente" : "agendada a mano"}
-        {cita.estado === "cancelada" ? " · cancelada" : ""}
-      </span>
-      <span className="ml-auto flex items-center gap-2">
-        {cita.meetLink && (
-          <a href={cita.meetLink} target="_blank" rel="noreferrer" className="text-primary inline-flex items-center gap-1 text-xs">
-            <Video className="h-3.5 w-3.5" /> Meet
-          </a>
-        )}
-        {cita.googleLink && (
-          <a href={cita.googleLink} target="_blank" rel="noreferrer" className="text-muted-foreground inline-flex items-center gap-1 text-xs">
-            <ExternalLink className="h-3.5 w-3.5" /> Google
-          </a>
-        )}
-        {onCancelar && (
-          <Button size="sm" variant="ghost" onClick={onCancelar} className="h-7 px-2 cursor-pointer" aria-label="Cancelar cita">
-            <X className="h-3.5 w-3.5" />
-          </Button>
-        )}
-      </span>
-    </div>
   );
 }

@@ -10,7 +10,7 @@ const manifiesto: ManifiestoModulo = {
   nombre: "agenda",
   titulo: "Agenda",
   descripcion: "Horarios disponibles, llamadas agendadas por el agente y sincronizacion con Google Calendar.",
-  version: "1.0.0",
+  version: "1.1.0",
   nav: [{ etiqueta: "Agenda", icono: CalendarClock, seccion: "Productividad" }],
 };
 

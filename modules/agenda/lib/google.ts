@@ -153,3 +153,19 @@ export async function cancelarEvento(refreshToken: string, calendarId: string, e
     method: "DELETE",
   });
 }
+
+/** Mueve un evento a otro horario (reagenda). Mantiene invitados y Meet. */
+export async function moverEvento(
+  refreshToken: string,
+  calendarId: string,
+  eventId: string,
+  input: { inicio: Date; fin: Date; zona: string }
+): Promise<void> {
+  await llamar(refreshToken, `/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}?sendUpdates=all`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      start: { dateTime: input.inicio.toISOString(), timeZone: input.zona },
+      end: { dateTime: input.fin.toISOString(), timeZone: input.zona },
+    }),
+  });
+}
