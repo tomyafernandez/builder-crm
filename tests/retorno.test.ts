@@ -18,6 +18,11 @@ describe("retorno: horas ahorradas", () => {
     expect(l.estimado).toBe(true);
     expect(l.cuenta).toContain("x 3 min");
   });
+  it("los minutos con decimales se escriben con coma", () => {
+    const l = lineaHorasAhorradas(6000, 1.6);
+    expect(l.valorTexto).toBe("160 h");
+    expect(l.cuenta).toBe("6.000 mensajes del agente x 1,6 min");
+  });
   it("menos de 10 horas con un decimal", () => {
     expect(lineaHorasAhorradas(50, 3).valorTexto).toBe("2,5 h");
   });

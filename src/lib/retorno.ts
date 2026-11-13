@@ -16,7 +16,7 @@ export function lineaHorasAhorradas(mensajesAgente: number, minutosPorMensaje: n
     etiqueta: "Horas ahorradas",
     montoCentavos: null,
     valorTexto: `${redondeo.toLocaleString("es-AR")} h`,
-    cuenta: `${mensajesAgente.toLocaleString("es-AR")} mensajes del agente x ${minutosPorMensaje} min`,
+    cuenta: `${mensajesAgente.toLocaleString("es-AR")} mensajes del agente x ${minutosPorMensaje.toLocaleString("es-AR")} min`,
     estimado: true,
     sumaAlTotal: false,
   };

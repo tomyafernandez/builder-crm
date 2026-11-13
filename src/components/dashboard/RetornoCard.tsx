@@ -8,6 +8,9 @@ import type { Retorno } from "@/lib/retorno";
  * el dueno tiene que poder rehacerla con una calculadora. Lo estimado se dice.
  */
 export function RetornoCard({ retorno }: { retorno: Retorno }) {
+  // Plata que no suma al total (ej. senas): va aparte, debajo del total.
+  const aparte = retorno.lineas.filter((l) => l.montoCentavos !== null && l.sumaAlTotal === false);
+  const lineas = retorno.lineas.filter((l) => !aparte.includes(l));
   return (
     <Card className="border-primary/20">
       <CardHeader className="pb-2">
@@ -17,8 +20,8 @@ export function RetornoCard({ retorno }: { retorno: Retorno }) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {retorno.lineas.map((l) => (
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {lineas.map((l) => (
             <div key={l.clave} className="rounded-xl border bg-card p-3">
               <p className="text-xs text-muted-foreground">
                 {l.etiqueta}
@@ -28,9 +31,6 @@ export function RetornoCard({ retorno }: { retorno: Retorno }) {
                 {l.montoCentavos !== null ? formatCurrency(l.montoCentavos) : l.valorTexto}
               </p>
               <p className="mt-1 text-[11px] leading-snug text-muted-foreground">{l.cuenta}</p>
-              {l.montoCentavos !== null && l.sumaAlTotal === false && (
-                <p className="mt-1 text-[11px] text-muted-foreground">No suma al total: ya es parte del precio del turno.</p>
-              )}
             </div>
           ))}
         </div>
@@ -41,6 +41,15 @@ export function RetornoCard({ retorno }: { retorno: Retorno }) {
             {retorno.totalEstimado && <span className="ml-2 text-xs font-normal text-muted-foreground">incluye estimados</span>}
           </p>
         </div>
+        {aparte.map((l) => (
+          <div key={l.clave} className="flex flex-wrap items-baseline justify-between gap-2 rounded-xl border px-4 py-3">
+            <div>
+              <p className="text-sm font-medium">{l.etiqueta}</p>
+              <p className="text-[11px] text-muted-foreground">{l.cuenta}</p>
+            </div>
+            <p className="text-xl font-semibold tabular-nums">{formatCurrency(l.montoCentavos!)}</p>
+          </div>
+        ))}
       </CardContent>
     </Card>
   );

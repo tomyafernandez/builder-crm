@@ -89,8 +89,9 @@ contrato de modulos no tenia como correr algo periodico ni como aportar al panel
     conversaciones recuperadas x precio del servicio.
   - Ausencias evitadas, estimado (agenda) = turnos confirmados por el cliente despues del
     recordatorio x tasa de ausencia x precio.
-  - Senas cobradas (agenda): se muestra, NO suma al total (es plata del mismo turno que ya
-    entro antes; sumarla contaria dos veces).
+  - Senas cobradas (agenda): se muestra aparte, debajo del total, y NO suma (es parte del
+    precio del mismo turno; sumarla contaria dos veces). En pantalla no se explica: solo la
+    etiqueta y su cuenta.
   - Total en la moneda de la instancia = suma de las lineas que suman.
 - D18. Se excluyen los contactos del simulador y del laboratorio, igual que en Reportes.
 - D19. Solo la ve un admin.
