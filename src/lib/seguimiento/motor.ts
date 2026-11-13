@@ -55,7 +55,10 @@ async function candidatas(soloSimulador: boolean) {
         isNotNull(conversations.lastInboundAt),
         gte(conversations.lastInboundAt, desde),
         eq(conversations.needsHuman, false),
-        soloSimulador ? eq(conversations.provider, PROVEEDOR_SIMULADOR) : undefined
+        // Spec nucleo/19 (D5): la prueba toca solo lo creado desde /simulador, no los datos
+        // demo (tambien son del simulador): con cientos sembrados, cada prueba redactaria
+        // decenas de mensajes con el modelo.
+        soloSimulador ? and(eq(conversations.provider, PROVEEDOR_SIMULADOR), eq(contacts.source, "simulador")) : undefined
       )
     )
     .orderBy(desc(conversations.lastInboundAt))

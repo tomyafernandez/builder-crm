@@ -20,7 +20,7 @@ mas plata recupera, y por eso la base del retorno de la inversion.
 - D4. Sale por `deliverMessage`: respeta ALLOWED_WA_IDS y el conector. Cada envio queda marcado en `raw_payload.seguimiento.paso`.
 - D5. Barrido `GET /api/seguimientos/process` (secreto del worker), en `src/lib/barridos.ts` (Coolify) y en el cron de Vercel / GitHub Actions. Hasta 10 envios por corrida.
 - D6. Apagado por defecto (`seguimiento.activo: false`): escribe a clientes reales y se enciende a proposito.
-- D7. Medicion para el retorno: una conversacion se "recupera" si el cliente vuelve a escribir despues de un seguimiento. Pagina Seguimientos (admin) con enviados, recuperadas, ultimos y esperando, y un boton "Probar en el simulador" que solo toca conversaciones del simulador y no espera las horas.
+- D7. Medicion para el retorno: una conversacion se "recupera" si el cliente vuelve a escribir despues de un seguimiento. Pagina Seguimientos (admin) con enviados, recuperadas, ultimos y esperando, y un boton "Probar en el simulador" que solo toca conversaciones del simulador y no espera las horas. Desde 2.6.0 (spec nucleo/19, D5) solo las de contactos creados desde /simulador: los datos demo quedan afuera.
 
 ## Criterios de aceptacion
 

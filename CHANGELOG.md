@@ -31,6 +31,9 @@ actuan sobre turnos que ya existen.
 - **Tarjeta "Lo que te dejo el sistema"** en el panel (admin): horas ahorradas, recuperado
   por seguimiento, ausencias evitadas (estimado) y senas cobradas, cada una con su cuenta.
   Supuestos en `config.retorno` (apagada por defecto).
+- "Probar en el simulador" del seguimiento ya no toca los datos demo: solo contactos
+  creados desde /simulador (con muchos datos sembrados, cada prueba redactaba decenas de
+  mensajes con el modelo).
 - El **Simulador** trae cada 5 s lo que sale sin que el cliente escriba (confirmacion de
   un pago, recordatorio, seguimiento).
 
