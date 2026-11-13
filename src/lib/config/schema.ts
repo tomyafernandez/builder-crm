@@ -234,6 +234,19 @@ const esquemaSeguimiento = z.object({
   instrucciones: z.string().max(1500).optional(),
 });
 
+/**
+ * Tarjeta "Lo que te dejo el sistema" del panel (spec nucleo/19). Son SUPUESTOS del
+ * negocio, por eso viven en la config y la tarjeta arranca apagada: sin ellos, cualquier
+ * numero seria inventado.
+ */
+const esquemaRetorno = z.object({
+  activo: z.boolean().default(false),
+  /** Minutos que le llevaria a una persona responder cada mensaje que manda el agente. */
+  minutosPorMensaje: z.number().min(0.5).max(60).default(3),
+  /** Que parte de los turnos se pierde por ausencia cuando no hay recordatorio (0 a 1). */
+  tasaAusencia: z.number().min(0).max(1).default(0.15),
+});
+
 export const esquemaConfig = z.object({
   marca: esquemaMarca,
   idioma: z.enum(["es", "en"]).default("es"),
@@ -284,6 +297,8 @@ export const esquemaConfig = z.object({
     horario: { desde: "09:00", hasta: "21:00" },
     etapasSinSeguimiento: [],
   }),
+  /** Tarjeta de retorno del panel (supuestos). Ver spec nucleo/19. */
+  retorno: esquemaRetorno.default({ activo: false, minutosPorMensaje: 3, tasaAusencia: 0.15 }),
   /** Laboratorio del agente: personas del nicho y puntaje minimo. Ver spec nucleo/17. */
   laboratorio: esquemaLaboratorio.default({ puntajeMinimo: 85, exigir: false }),
   /** Funciones del nucleo apagables + modulos de `modules/` por nombre de carpeta. */

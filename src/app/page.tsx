@@ -10,6 +10,8 @@ import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { NotificationBanner } from "@/components/dashboard/NotificationBanner";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CargarDemo } from "@/components/dashboard/CargarDemo";
+import { RetornoCard } from "@/components/dashboard/RetornoCard";
+import { retornoDelPanel } from "@/lib/retorno-servidor";
 import type { DashboardStats } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -86,6 +88,9 @@ export default async function DashboardPage() {
 
   const isFirstRun = allContacts.length === 0 && allDeals.length === 0;
 
+  // Spec nucleo/19: la tarjeta de retorno es del negocio entero, solo para admin.
+  const retorno = member.role === "admin" && !isFirstRun ? await retornoDelPanel(30) : null;
+
   return (
     <div>
       <PageHeader
@@ -127,6 +132,8 @@ export default async function DashboardPage() {
       )}
 
       <NotificationBanner />
+
+      {retorno && <RetornoCard retorno={retorno} />}
 
       <KPICards stats={stats} contactos={contactos7d} />
 

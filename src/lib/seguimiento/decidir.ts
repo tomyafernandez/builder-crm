@@ -136,3 +136,22 @@ export function medirSeguimientos(mensajes: Array<MensajeHilo & { conversationId
   }
   return { enviados, conversacionesConSeguimiento, recuperadas };
 }
+
+/**
+ * Ids de las conversaciones que un seguimiento "recupero" (spec nucleo/19, tarjeta de
+ * retorno): misma regla que `medirSeguimientos`.
+ */
+export function conversacionesRecuperadas(mensajes: Array<MensajeHilo & { conversationId: string | null }>): string[] {
+  const porConv = new Map<string, MensajeHilo[]>();
+  for (const m of mensajes) {
+    if (!m.conversationId) continue;
+    porConv.set(m.conversationId, [...(porConv.get(m.conversationId) ?? []), m]);
+  }
+  const salida: string[] = [];
+  for (const [id, lista] of porConv) {
+    const orden = [...lista].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+    const primero = orden.find((m) => m.direction === "out" && pasoDeSeguimiento(m.rawPayload) !== null);
+    if (primero && orden.some((m) => m.direction === "in" && m.createdAt > primero.createdAt)) salida.push(id);
+  }
+  return salida;
+}
