@@ -81,10 +81,12 @@ contrato de modulos no tenia como correr algo periodico ni como aportar al panel
 
 ### C. Tarjeta "Lo que te dejo el sistema" (`src/lib/retorno.ts`)
 
-- D16. `config.retorno = { activo: false, minutosPorMensaje: 3, tasaAusencia: 0.15 }`.
+- D16. `config.retorno = { activo: false, minutosPorMensaje: 3, tasaAusencia: 0.15, horasJornadaMes: 160, sueldoReferenciaCentavos? }`.
   Apagada por defecto: una instancia sin estos supuestos no muestra numeros inventados.
 - D17. Ultimos 30 dias, cada linea con su cuenta escrita y "estimado" donde lo sea:
-  - Horas ahorradas (nucleo) = mensajes del agente x minutos por mensaje / 60.
+  - Horas ahorradas (nucleo) = mensajes del agente x minutos por mensaje / 60. Si la config
+    trae `sueldoReferenciaCentavos`, tambien se valuan (horas / `horasJornadaMes` x sueldo,
+    estimado) y suman al total; si no, son solo horas.
   - Recuperado por seguimiento (agenda) = turnos (no cancelados ni vencidos) de
     conversaciones recuperadas x precio del servicio.
   - Ausencias evitadas, estimado (agenda) = turnos confirmados por el cliente despues del

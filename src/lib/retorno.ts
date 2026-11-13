@@ -7,18 +7,35 @@ import type { MetricaRetorno } from "@/lib/modules/types";
 
 export type Formatear = (centavos: number) => string;
 
-/** Horas que le llevaria a una persona escribir lo que escribio el agente. */
-export function lineaHorasAhorradas(mensajesAgente: number, minutosPorMensaje: number): MetricaRetorno {
+/**
+ * Horas que le llevaria a una persona escribir lo que escribio el agente. Con un sueldo de
+ * referencia, ademas se valuan: horas / horas de una jornada completa x sueldo.
+ */
+export function lineaHorasAhorradas(
+  mensajesAgente: number,
+  minutosPorMensaje: number,
+  sueldo?: { centavos: number; horasJornadaMes: number; fmt: Formatear }
+): MetricaRetorno {
   const horas = (mensajesAgente * minutosPorMensaje) / 60;
   const redondeo = horas >= 10 ? Math.round(horas) : Math.round(horas * 10) / 10;
-  return {
+  const cuenta = `${mensajesAgente.toLocaleString("es-AR")} mensajes del agente x ${minutosPorMensaje.toLocaleString("es-AR")} min`;
+  const base: MetricaRetorno = {
     clave: "horas_ahorradas",
     etiqueta: "Horas ahorradas",
     montoCentavos: null,
     valorTexto: `${redondeo.toLocaleString("es-AR")} h`,
-    cuenta: `${mensajesAgente.toLocaleString("es-AR")} mensajes del agente x ${minutosPorMensaje.toLocaleString("es-AR")} min`,
+    cuenta,
     estimado: true,
     sumaAlTotal: false,
+  };
+  if (!sueldo || sueldo.centavos <= 0) return base;
+  const jornadas = horas / sueldo.horasJornadaMes;
+  const j = Math.round(jornadas * 10) / 10;
+  return {
+    ...base,
+    montoCentavos: Math.round(jornadas * sueldo.centavos),
+    sumaAlTotal: true,
+    cuenta: `${cuenta} = ${j.toLocaleString("es-AR")} ${j === 1 ? "jornada completa" : "jornadas completas"} (sueldo de referencia ${sueldo.fmt(sueldo.centavos)})`,
   };
 }
 
@@ -39,11 +56,13 @@ export function armarRetorno(input: {
   dias: number;
   mensajesAgente: number;
   minutosPorMensaje: number;
+  /** Para valuar las horas (opcional). */
+  sueldo?: { centavos: number; horasJornadaMes: number; fmt: Formatear };
   /** Conversaciones recuperadas por el seguimiento (para la linea sin precio). */
   recuperadas?: number;
   lineasModulos: MetricaRetorno[];
 }): Retorno {
-  const lineas = [lineaHorasAhorradas(input.mensajesAgente, input.minutosPorMensaje)];
+  const lineas = [lineaHorasAhorradas(input.mensajesAgente, input.minutosPorMensaje, input.sueldo)];
   // Sin un modulo que le ponga precio (agenda), el recupero se muestra como cantidad.
   if (!input.lineasModulos.some((l) => l.clave === "recuperado_seguimiento") && input.recuperadas !== undefined) {
     lineas.push({

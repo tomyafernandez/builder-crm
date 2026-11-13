@@ -6,6 +6,7 @@ import { getConfig } from "@/lib/config";
 import { modulosActivos } from "@/lib/modules";
 import { conversacionesRecuperadas } from "@/lib/seguimiento/decidir";
 import type { MetricaRetorno } from "@/lib/modules/types";
+import { formatCurrency } from "@/lib/constants";
 import { armarRetorno, type Retorno } from "./retorno";
 
 /**
@@ -56,5 +57,13 @@ export async function retornoDelPanel(dias = 30): Promise<Retorno | null> {
     }
   }
 
-  return armarRetorno({ dias, mensajesAgente, minutosPorMensaje: config.retorno.minutosPorMensaje, recuperadas: recuperadas.length, lineasModulos });
+  const { sueldoReferenciaCentavos, horasJornadaMes } = config.retorno;
+  return armarRetorno({
+    dias,
+    mensajesAgente,
+    minutosPorMensaje: config.retorno.minutosPorMensaje,
+    sueldo: sueldoReferenciaCentavos ? { centavos: sueldoReferenciaCentavos, horasJornadaMes, fmt: formatCurrency } : undefined,
+    recuperadas: recuperadas.length,
+    lineasModulos,
+  });
 }
