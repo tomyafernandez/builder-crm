@@ -31,6 +31,8 @@
 #  - /api/automations/process -> automatizaciones encoladas.
 #  - /api/seguimientos/process -> seguimiento automatico a quienes dejaron de responder
 #    (spec nucleo/18). En Vercel, sin este workflow encendido sale una vez por dia.
+#  - /api/modulos/barridos -> lo periodico de los modulos activos, como recordatorios de
+#    turnos y reservas con sena vencidas (spec nucleo/19).
 
 name: Sweepers
 
@@ -86,3 +88,10 @@ jobs:
           curl -sS -m 60 -o /dev/null -w "seguimientos/process -> %{http_code}\n" \
             -H "Authorization: Bearer $SECRETO" \
             "$BASE/api/seguimientos/process"
+
+      - name: Barrer modulos (recordatorios y vencimientos)
+        if: steps.config.outputs.listo == 'true'
+        run: |
+          curl -sS -m 60 -o /dev/null -w "modulos/barridos -> %{http_code}\n" \
+            -H "Authorization: Bearer $SECRETO" \
+            "$BASE/api/modulos/barridos"

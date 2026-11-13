@@ -17,6 +17,8 @@ const ENDPOINTS = [
   // Spec nucleo/18: el seguimiento automatico depende de este barrido para salir a
   // tiempo (no hay evento que lo dispare: lo dispara el silencio del cliente).
   "/api/seguimientos/process",
+  // Spec nucleo/19: recordatorios y vencimientos de los modulos (agenda con sena).
+  "/api/modulos/barridos",
 ];
 
 declare global {

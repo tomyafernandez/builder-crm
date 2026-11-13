@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireMember } from "@/lib/api-auth";
-import { obtenerModulo, resolverApi } from "@/lib/modules";
+import { obtenerModulo, resolverApi, resolverApiPublica } from "@/lib/modules";
 import type { MetodoHttp } from "@/lib/modules/types";
 
 export const dynamic = "force-dynamic";
@@ -18,6 +18,21 @@ async function despachar(
   const { modulo: nombre, ruta = [] } = await ctx.params;
   const modulo = obtenerModulo(nombre);
   if (!modulo) return NextResponse.json({ error: "Modulo no encontrado" }, { status: 404 });
+
+  // Spec nucleo/19: /api/m/<modulo>/publico/... sale SOLO de `apiPublica`, sin sesion.
+  if (ruta[0] === "publico") {
+    const pub = resolverApiPublica(modulo, metodo, ruta.slice(1));
+    if (!pub) return NextResponse.json({ error: "Ruta no encontrada" }, { status: 404 });
+    if (!pub.handler) {
+      return NextResponse.json({ error: "Metodo no permitido" }, { status: 405, headers: { Allow: pub.metodosPermitidos.join(", ") } });
+    }
+    try {
+      return await pub.handler(request, { params: pub.params });
+    } catch (err) {
+      console.error(`[modulo ${nombre}] ${metodo} publico/${ruta.slice(1).join("/")} fallo:`, err);
+      return NextResponse.json({ error: "Error interno del modulo" }, { status: 500 });
+    }
+  }
 
   const match = resolverApi(modulo, metodo, ruta);
   if (!match) return NextResponse.json({ error: "Ruta no encontrada" }, { status: 404 });

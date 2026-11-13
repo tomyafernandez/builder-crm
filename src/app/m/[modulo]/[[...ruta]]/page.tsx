@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { getCurrentMember } from "@/lib/team";
-import { obtenerModulo, resolverPagina } from "@/lib/modules";
+import { obtenerModulo, resolverPagina, resolverPaginaPublica } from "@/lib/modules";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +19,14 @@ export default async function PaginaModuloRoute({
   const { modulo: nombre, ruta = [] } = await params;
   const modulo = obtenerModulo(nombre);
   if (!modulo) notFound();
+
+  // Spec nucleo/19: /m/<modulo>/publico/... sale SOLO de `paginasPublicas`, sin sesion.
+  if (ruta[0] === "publico") {
+    const pub = resolverPaginaPublica(modulo, ruta.slice(1));
+    if (!pub) notFound();
+    const Publica = pub.valor;
+    return <Publica params={pub.params} searchParams={await searchParams} />;
+  }
 
   const match = resolverPagina(modulo, ruta);
   if (!match) notFound();

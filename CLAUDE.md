@@ -225,6 +225,13 @@ un segundo. Lo que necesita base o navegador se prueba con `verificar-instancia`
 - **Datos demo** por `POST /api/seed/demo` (admin o `AGENT_WORKER_SECRET`): usan el
   conector `simulador` para que la demo responda; los reportes solo excluyen a los
   contactos creados desde `/simulador`.
+- **Paginas sin login de modulo** (spec nucleo/19): solo `/m/<modulo>/publico/...` y
+  `/api/m/<modulo>/publico/...`, servidas desde `paginasPublicas` / `apiPublica`. Es la
+  unica excepcion del middleware para modulos; lo que vaya ahi lo ve cualquiera con el
+  link, asi que valida por su cuenta y no muestra datos del contacto.
+- **Barridos de modulo** (`servidor.barrido`): `soloSimulador` toca solo contactos creados
+  desde /simulador (`source = 'simulador'`), no los datos demo; `ignorarEspera` vale solo
+  junto con el. Asi un boton "probar ahora" no le escribe a cientos de contactos sembrados.
 - **En Vercel** los barridos van por `vercel.json` + `.github/workflows/sweepers.yml`
   (Hobby no permite crons frecuentes); en Coolify corren dentro del proceso
   (`src/lib/barridos.ts`).

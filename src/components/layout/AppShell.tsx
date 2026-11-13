@@ -16,6 +16,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const m = marca();
 
+  // Spec nucleo/19: lo que ve un cliente final (ej. pagar una sena) va sin el menu del CRM.
+  if (/^\/m\/[a-z][a-z0-9_]*\/publico(\/|$)/.test(pathname)) {
+    return (
+      <div className="min-h-screen bg-muted/30 px-4 py-10">
+        <div className="mx-auto w-full max-w-md space-y-6">
+          <div className="flex items-center justify-center gap-2.5">
+            <Image src={m.logo} alt={m.nombre} width={36} height={36} unoptimized className="h-9 w-9 rounded-full object-cover shrink-0" />
+            <span className="text-lg font-semibold tracking-tight font-heading">{m.nombre}</span>
+          </div>
+          {children}
+        </div>
+      </div>
+    );
+  }
+
   if (isAuthRoute) {
     return (
       <div className="min-h-screen flex">

@@ -1,6 +1,6 @@
 import "server-only";
 import { MODULOS_SERVIDOR } from "./registro.generated";
-import type { ModuloServidor, MetodoHttp, HandlerModulo, PaginaModulo } from "./types";
+import type { ModuloServidor, MetodoHttp, HandlerModulo, HandlerPublico, PaginaModulo } from "./types";
 
 /**
  * Lado servidor del sistema de modulos. El registro (`registro.generated.ts`) lo
@@ -66,4 +66,16 @@ export function resolverApi(modulo: ModuloServidor, metodo: MetodoHttp, segmento
   const handler: HandlerModulo | undefined = match.valor[metodo];
   if (!handler) return { handler: null, params: match.params, metodosPermitidos: Object.keys(match.valor) };
   return { handler, params: match.params, metodosPermitidos: Object.keys(match.valor) };
+}
+
+/** Spec nucleo/19: lo que sigue a /m/<modulo>/publico/. */
+export function resolverPaginaPublica(modulo: ModuloServidor, segmentos: string[]) {
+  return resolverPatron(modulo.paginasPublicas ?? {}, segmentos);
+}
+
+export function resolverApiPublica(modulo: ModuloServidor, metodo: MetodoHttp, segmentos: string[]) {
+  const match = resolverPatron(modulo.apiPublica ?? {}, segmentos);
+  if (!match) return null;
+  const handler: HandlerPublico | undefined = match.valor[metodo];
+  return { handler: handler ?? null, params: match.params, metodosPermitidos: Object.keys(match.valor) };
 }

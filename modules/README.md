@@ -46,6 +46,9 @@ sus tablas quedan intactas.
 | Tools del agente | `servidor.tools` | Se suman a las del nucleo mientras el modulo esta activo |
 | Tablas | `migrations/*.sql` | Las aplica el runner, en orden, una sola vez |
 | Datos demo | `servidor.seed` | `npm run seed` |
+| Paginas y API sin login | `servidor.paginasPublicas`, `servidor.apiPublica` | `/m/<nombre>/publico/<patron>` y `/api/m/<nombre>/publico/<patron>` (spec nucleo/19). Para lo que abre un cliente final; validan por su cuenta |
+| Trabajo periodico | `servidor.barrido` | Barrido del proceso (Coolify), `GET /api/modulos/barridos` (cron) y botones de prueba |
+| Tarjeta de retorno | `servidor.metricasPanel` | Lineas de "Lo que te dejo el sistema" en el panel, si `config.retorno.activo` |
 
 Patrones de ruta: `""` (principal), `"nueva"`, `"[id]"`, `"[id]/editar"`. Un segmento
 entre corchetes captura y llega en `params`. El patron con mas segmentos literales

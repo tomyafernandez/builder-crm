@@ -79,4 +79,64 @@ export interface ModuloServidor {
   tools?: ToolModulo[];
   /** Datos de demostracion del modulo (`npm run seed`). Debe ser idempotente. */
   seed?: () => Promise<void>;
+  /**
+   * Paginas SIN login, servidas en /m/<modulo>/publico/<patron> (spec nucleo/19). Para lo
+   * que ve un cliente final (ej. la pagina de pago de una sena). Cada una valida por su
+   * cuenta lo que muestra: no hay miembro.
+   */
+  paginasPublicas?: Record<string, ComponentType<PropsPaginaPublica> | ((props: PropsPaginaPublica) => ReactNode | Promise<ReactNode>)>;
+  /** API SIN login en /api/m/<modulo>/publico/<patron>. */
+  apiPublica?: Record<string, Partial<Record<MetodoHttp, HandlerPublico>>>;
+  /**
+   * Trabajo periodico del modulo (recordatorios, vencimientos). Lo corren el barrido del
+   * proceso (Coolify), GET /api/modulos/barridos (cron) y los botones de prueba.
+   */
+  barrido?: (opciones: OpcionesBarrido) => Promise<ResultadoBarrido>;
+  /** Lineas que el modulo aporta a la tarjeta "Lo que te dejo el sistema". */
+  metricasPanel?: (dias: number, contexto: ContextoMetricas) => Promise<MetricaRetorno[]>;
+}
+
+export interface PropsPaginaPublica {
+  params: Record<string, string>;
+  searchParams: Record<string, string | string[] | undefined>;
+}
+
+export type HandlerPublico = (request: NextRequest, ctx: { params: Record<string, string> }) => Promise<Response> | Response;
+
+export interface OpcionesBarrido {
+  /**
+   * Solo contactos creados desde /simulador (no los datos demo ni clientes reales). Lo
+   * usan los botones "probar ahora".
+   */
+  soloSimulador?: boolean;
+  /** No esperar los plazos. Solo tiene efecto junto con `soloSimulador`. */
+  ignorarEspera?: boolean;
+}
+
+export interface ResultadoBarrido {
+  revisadas: number;
+  enviados: number;
+  errores: number;
+  detalle: Array<{ contacto: string | null; resultado: string }>;
+}
+
+export interface ContextoMetricas {
+  /** Supuestos de config.retorno. */
+  retorno: { minutosPorMensaje: number; tasaAusencia: number };
+  /** Conversaciones que volvieron a escribir despues de un seguimiento (las mide el nucleo). */
+  conversacionesRecuperadas: string[];
+}
+
+export interface MetricaRetorno {
+  clave: string;
+  etiqueta: string;
+  /** Monto en centavos (moneda de la config) o null si la linea no es plata. */
+  montoCentavos: number | null;
+  /** Texto del valor si no es plata (ej. "42 h"). */
+  valorTexto?: string;
+  /** La cuenta a la vista: "12 turnos x USD 80". */
+  cuenta: string;
+  estimado?: boolean;
+  /** false: se muestra pero no suma al total (ej. senas: plata del mismo turno). */
+  sumaAlTotal?: boolean;
 }

@@ -16,10 +16,22 @@ const PUBLIC_API_PREFIXES = [
   "/api/agent",
   "/api/automations/process",
   "/api/seguimientos/process",
+  "/api/modulos/barridos",
   "/api/simulador",
   "/api/laboratorio",
   "/api/seed",
 ];
+
+/**
+ * Spec nucleo/19: paginas y API publicas de modulo. SOLO el segmento `publico` justo
+ * despues del nombre del modulo; el despachador ademas las sirve desde `paginasPublicas`
+ * / `apiPublica`, nunca desde las paginas con login.
+ */
+const RUTA_PUBLICA_MODULO = /^\/(?:api\/)?m\/[a-z][a-z0-9_]*\/publico(?:\/|$)/;
+
+export function esRutaPublicaDeModulo(pathname: string): boolean {
+  return RUTA_PUBLICA_MODULO.test(pathname);
+}
 
 export async function updateSession(request: NextRequest) {
   // Modo local: no hay servidor de autenticacion al que preguntarle. Sin esta salida,
@@ -65,7 +77,7 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith(prefix),
   );
 
-  if (!user && !isPublicPath && !isPublicApi) {
+  if (!user && !isPublicPath && !isPublicApi && !esRutaPublicaDeModulo(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("redirect", pathname);
