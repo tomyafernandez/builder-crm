@@ -4,7 +4,9 @@ import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { activities, contacts, conversations, crmSettings, deals, messages, pipelineStages, pipelines } from "@/db/schema";
 import { resolveDefaultTenantId } from "@/lib/tenants";
-import type { ModuloServidor } from "@/lib/modules/types";
+import { NextResponse } from "next/server";
+import type { HandlerModulo, ModuloServidor } from "@/lib/modules/types";
+import { Recargar } from "./componentes/Recargar";
 import manifiesto from "./manifiesto";
 import { ajustes, citas } from "./lib/tablas";
 import { generar, SERVICIOS } from "./lib/generar";
@@ -40,6 +42,17 @@ async function configurarAgenda() {
     updatedAt: new Date(),
   };
   await db.insert(ajustes).values({ id: "default", ...valores }).onConflictDoUpdate({ target: ajustes.id, set: valores });
+}
+
+/**
+ * Borra lo sembrado (contactos `demo` que no son del Simulador; en cascada se van sus
+ * conversaciones, mensajes, operaciones, actividades y turnos) y la marca, para volver a
+ * sembrar con fechas de hoy. La tarjeta mira los ultimos 30 dias: antes de grabar o de una
+ * demo conviene recargar para que de lo mismo que en la web.
+ */
+async function borrarSemilla() {
+  await db.delete(contacts).where(sql`'demo' = any(${contacts.tags}) and ${contacts.source} <> 'simulador'`);
+  await db.delete(crmSettings).where(eq(crmSettings.key, MARCA));
 }
 
 async function sembrar() {
@@ -192,9 +205,18 @@ async function sembrar() {
   await db.insert(crmSettings).values({ key: MARCA, value: new Date().toISOString() }).onConflictDoNothing();
 }
 
+const recargar: HandlerModulo = async (_req, { member }) => {
+  if (member.role !== "admin") return NextResponse.json({ error: "Solo un administrador" }, { status: 403 });
+  await borrarSemilla();
+  await sembrar();
+  return NextResponse.json({ ok: true });
+};
+
 const modulo: ModuloServidor = {
   manifiesto,
   seed: sembrar,
+  paginas: { "": () => <Recargar /> },
+  api: { recargar: { POST: recargar } },
 };
 
 export default modulo;

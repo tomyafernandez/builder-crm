@@ -47,9 +47,12 @@ Lo unico simulado: los canales (Simulador) y el pago de la sena (pagina de prueb
 ## Criterios de aceptacion
 
 - [x] `npm test && npm run typecheck && npm run lint && npm run build` en verde en `demo`.
-- [x] El seed deja ~60 consultas por dia, ticket ~USD 79, ~160 h ahorradas (~USD 700), ~12
-  turnos recuperados, ~USD 640 de ausencias evitadas y un total cercano a USD 2.100-2.300 en
-  30 dias (la web dice ~USD 2.300). Varia unos cientos segun el dia en que se siembra.
+- [x] El seed es deterministico (misma semilla, fechas relativas a hoy) y la tarjeta da
+  SIEMPRE USD 2.299 en 30 dias: 160 h = USD 699 (una jornada completa), 15 turnos
+  recuperados = USD 1.000, 52 confirmados por recordatorio = USD 600. Senas aparte: USD
+  2.964. ~61 consultas por dia, ticket ~USD 77. Lo fija `tests/estudio-norte.test.ts`.
+- [x] `/m/estudio_norte` (sin menu) recarga los datos con fechas de hoy: la tarjeta mira
+  los ultimos 30 dias, asi que antes de grabar conviene recargar.
 - [ ] Recorrido completo en la demo publicada, con capturas.
 
 ## Constitution Check
