@@ -18,6 +18,20 @@ describe("retorno: horas ahorradas", () => {
     expect(l.estimado).toBe(true);
     expect(l.cuenta).toContain("x 3 min");
   });
+  it("los minutos con decimales se escriben con coma", () => {
+    const l = lineaHorasAhorradas(6000, 1.6);
+    expect(l.valorTexto).toBe("160 h");
+    expect(l.cuenta).toBe("6.000 mensajes del agente x 1,6 min");
+  });
+  it("con sueldo de referencia, las horas se valuan por jornada completa y suman", () => {
+    const l = lineaHorasAhorradas(6000, 1.6, { centavos: 70000, horasJornadaMes: 160, fmt });
+    expect(l.valorTexto).toBe("160 h");
+    expect(l.montoCentavos).toBe(70000);
+    expect(l.sumaAlTotal).toBe(true);
+    expect(l.cuenta).toBe("6.000 mensajes del agente x 1,6 min = 1 jornada completa (sueldo de referencia USD 700)");
+    const r = armarRetorno({ dias: 30, mensajesAgente: 6000, minutosPorMensaje: 1.6, sueldo: { centavos: 70000, horasJornadaMes: 160, fmt }, lineasModulos: [] });
+    expect(r.totalCentavos).toBe(70000);
+  });
   it("menos de 10 horas con un decimal", () => {
     expect(lineaHorasAhorradas(50, 3).valorTexto).toBe("2,5 h");
   });

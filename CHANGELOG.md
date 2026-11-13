@@ -30,7 +30,8 @@ actuan sobre turnos que ya existen.
   reprogramacion por el agente conservando la sena.
 - **Tarjeta "Lo que te dejo el sistema"** en el panel (admin): horas ahorradas, recuperado
   por seguimiento, ausencias evitadas (estimado) y senas cobradas, cada una con su cuenta.
-  Supuestos en `config.retorno` (apagada por defecto).
+  Supuestos en `config.retorno` (apagada por defecto); con un sueldo de referencia, las
+  horas tambien se valuan como jornadas completas. Las senas se muestran aparte y no suman.
 - "Probar en el simulador" del seguimiento ya no toca los datos demo: solo contactos
   creados desde /simulador (con muchos datos sembrados, cada prueba redactaba decenas de
   mensajes con el modelo).

@@ -81,16 +81,19 @@ contrato de modulos no tenia como correr algo periodico ni como aportar al panel
 
 ### C. Tarjeta "Lo que te dejo el sistema" (`src/lib/retorno.ts`)
 
-- D16. `config.retorno = { activo: false, minutosPorMensaje: 3, tasaAusencia: 0.15 }`.
+- D16. `config.retorno = { activo: false, minutosPorMensaje: 3, tasaAusencia: 0.15, horasJornadaMes: 160, sueldoReferenciaCentavos? }`.
   Apagada por defecto: una instancia sin estos supuestos no muestra numeros inventados.
 - D17. Ultimos 30 dias, cada linea con su cuenta escrita y "estimado" donde lo sea:
-  - Horas ahorradas (nucleo) = mensajes del agente x minutos por mensaje / 60.
+  - Horas ahorradas (nucleo) = mensajes del agente x minutos por mensaje / 60. Si la config
+    trae `sueldoReferenciaCentavos`, tambien se valuan (horas / `horasJornadaMes` x sueldo,
+    estimado) y suman al total; si no, son solo horas.
   - Recuperado por seguimiento (agenda) = turnos (no cancelados ni vencidos) de
     conversaciones recuperadas x precio del servicio.
   - Ausencias evitadas, estimado (agenda) = turnos confirmados por el cliente despues del
     recordatorio x tasa de ausencia x precio.
-  - Senas cobradas (agenda): se muestra, NO suma al total (es plata del mismo turno que ya
-    entro antes; sumarla contaria dos veces).
+  - Senas cobradas (agenda): se muestra aparte, debajo del total, y NO suma (es parte del
+    precio del mismo turno; sumarla contaria dos veces). En pantalla no se explica: solo la
+    etiqueta y su cuenta.
   - Total en la moneda de la instancia = suma de las lineas que suman.
 - D18. Se excluyen los contactos del simulador y del laboratorio, igual que en Reportes.
 - D19. Solo la ve un admin.

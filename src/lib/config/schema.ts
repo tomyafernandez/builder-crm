@@ -245,6 +245,14 @@ const esquemaRetorno = z.object({
   minutosPorMensaje: z.number().min(0.5).max(60).default(3),
   /** Que parte de los turnos se pierde por ausencia cuando no hay recordatorio (0 a 1). */
   tasaAusencia: z.number().min(0).max(1).default(0.15),
+  /**
+   * Opcional: sueldo mensual de referencia de una persona de jornada completa (centavos).
+   * Con esto las horas ahorradas tambien se valuan: horas / horasJornadaMes x sueldo.
+   * Sin esto se muestran solo como horas y no suman al total.
+   */
+  sueldoReferenciaCentavos: z.number().int().min(0).optional(),
+  /** Horas de una jornada completa al mes (para valuar las horas ahorradas). */
+  horasJornadaMes: z.number().min(1).max(400).default(160),
 });
 
 export const esquemaConfig = z.object({
@@ -298,7 +306,7 @@ export const esquemaConfig = z.object({
     etapasSinSeguimiento: [],
   }),
   /** Tarjeta de retorno del panel (supuestos). Ver spec nucleo/19. */
-  retorno: esquemaRetorno.default({ activo: false, minutosPorMensaje: 3, tasaAusencia: 0.15 }),
+  retorno: esquemaRetorno.default({ activo: false, minutosPorMensaje: 3, tasaAusencia: 0.15, horasJornadaMes: 160 }),
   /** Laboratorio del agente: personas del nicho y puntaje minimo. Ver spec nucleo/17. */
   laboratorio: esquemaLaboratorio.default({ puntajeMinimo: 85, exigir: false }),
   /** Funciones del nucleo apagables + modulos de `modules/` por nombre de carpeta. */
