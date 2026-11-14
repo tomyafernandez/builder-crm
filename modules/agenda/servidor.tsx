@@ -12,7 +12,7 @@ import type { ServicioAgenda } from "./tabla";
 import { barridoAgenda } from "./lib/barrido";
 import { metricasAgenda } from "./lib/metricas";
 import { confirmarAsistencia, confirmarPago, misTurnos, reprogramar } from "./lib/turnos";
-import { canjearCodigo, googleConfigurado, urlAutorizacion, urlRetorno } from "./lib/google";
+import { canjearCodigo, googleConfigurado, nombreCalendario, urlAutorizacion, urlRetorno } from "./lib/google";
 import {
   agendar,
   cancelar,
@@ -23,6 +23,7 @@ import {
   leerAjustes,
   ofrecerHorarios,
   serviciosParaAgente,
+  tokenGoogle,
   zona,
 } from "./lib/servicio";
 
@@ -55,7 +56,13 @@ const panel: HandlerModulo = async (_req, { member }) => {
     google: {
       configurado: googleConfigurado(),
       conectado: Boolean(a.googleRefreshToken),
-      email: a.googleEmail,
+      // El nombre del calendario y no el correo de la cuenta: la pantalla se muestra en
+      // demos y grabaciones.
+      calendario: await (async () => {
+        const token = tokenGoogle(a);
+        if (!token) return null;
+        return a.googleCalendarId === "primary" ? "tu calendario principal" : await nombreCalendario(token, a.googleCalendarId);
+      })(),
       cifrado: cifradoActivo(),
     },
     esAdmin: member.role === "admin",
