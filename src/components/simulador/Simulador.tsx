@@ -71,6 +71,12 @@ export function Simulador() {
     finRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [mensajes.length, ocupado]);
 
+  // Cuantos mensajes se ven: el sondeo compara contra esto sin depender del estado.
+  const cantidad = useRef(0);
+  useEffect(() => {
+    cantidad.current = mensajes.length;
+  }, [mensajes.length]);
+
   // Lo que sale sin que el cliente escriba (confirmacion de un pago, recordatorio,
   // seguimiento) llega por un barrido o por otra pagina: se trae cada 5 s.
   useEffect(() => {
@@ -80,13 +86,19 @@ export function Simulador() {
         const res = await fetch(`/api/conversations/${conversationId}/messages`, { cache: "no-store" });
         if (!res.ok) return;
         const data = (await res.json()) as { messages?: Mensaje[] };
-        if (data.messages) setMensajes((prev) => (data.messages!.length !== prev.length ? data.messages! : prev));
+        if (!data.messages || data.messages.length === cantidad.current) return;
+        setMensajes(data.messages);
+        // Lo que llego solo tambien cambia el CRM (un pago mueve la etapa): se refresca el panel.
+        if (contactId) {
+          const r = await fetch(`/api/contacts/${contactId}`, { cache: "no-store" });
+          if (r.ok) setEstado((await r.json()) as EstadoCrm);
+        }
       } catch {
         /* reintenta en la proxima vuelta */
       }
     }, 5000);
     return () => clearInterval(id);
-  }, [conversationId, ocupado]);
+  }, [conversationId, contactId, ocupado]);
 
   const cargarEstado = async (id: string) => {
     try {
