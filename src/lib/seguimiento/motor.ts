@@ -10,7 +10,7 @@ import { renderSystemPrompt } from "@/lib/agent/prompt";
 import { pulirTexto } from "@/lib/agent/estilo";
 import type { Channel } from "@/lib/channels/types";
 import { PROVEEDOR_SIMULADOR } from "@/lib/simulador";
-import { decidirSeguimiento, medirSeguimientos, type Decision } from "./decidir";
+import { decidirSeguimiento, medirSeguimientos, repiteMensajeAnterior, type Decision } from "./decidir";
 
 /**
  * Motor del seguimiento automatico (spec nucleo/18). Lo corre el barrido cada
@@ -112,13 +112,25 @@ Responde solo con el texto del mensaje.`;
     .map((f) => ({ role: f.direction === "in" ? ("user" as const) : ("assistant" as const), content: f.body!.trim() }));
   const r = await getOpenRouterClient().chat.completions.create({
     model: agente.model,
-    messages: [{ role: "system", content: sistema }, ...historia],
+    // El hilo termina en nuestro mensaje: sin esta indicacion final, el modelo tiende a
+    // volver a contestar la ultima pregunta del cliente en vez de retomar.
+    messages: [
+      { role: "system", content: sistema },
+      ...historia,
+      {
+        role: "user",
+        content:
+          "[Indicacion interna, no la escribio el cliente] El cliente no respondio a tu ultimo mensaje. Escribi ahora el seguimiento segun la seccion SEGUIMIENTO, sin repetir tu ultimo mensaje.",
+      },
+    ],
     temperature: 0.5,
     // Mismo tope que el agente: los modelos que razonan gastan tokens antes de escribir y,
     // con un tope chico, devuelven el texto vacio (el seguimiento no sale, sin error).
     max_completion_tokens: 1024,
   });
   const texto = r.choices[0]?.message?.content?.trim();
+  const ultimoNuestro = historia.filter((m) => m.role === "assistant").at(-1)?.content;
+  if (texto && repiteMensajeAnterior(texto, ultimoNuestro)) return null;
   return texto ? pulirTexto(texto.replace(/^["“]|["”]$/g, ""), { sinSignosApertura: getConfig().agente.sinSignosApertura }) : null;
 }
 

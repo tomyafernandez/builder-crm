@@ -155,3 +155,29 @@ export function conversacionesRecuperadas(mensajes: Array<MensajeHilo & { conver
   }
   return salida;
 }
+
+/** Palabras de un texto, sin tildes, signos ni mayusculas. */
+function palabras(texto: string): string[] {
+  return texto
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
+/**
+ * True si el seguimiento redactado es practicamente el mismo mensaje que ya le mandamos
+ * (spec nucleo/18). Pasa cuando el modelo, en vez de retomar, vuelve a contestar la
+ * ultima pregunta del cliente: mandarlo seria repetirse, asi que no sale.
+ */
+export function repiteMensajeAnterior(texto: string, anterior: string | null | undefined): boolean {
+  if (!anterior) return false;
+  const a = new Set(palabras(texto));
+  const b = new Set(palabras(anterior));
+  if (a.size === 0 || b.size === 0) return false;
+  let comunes = 0;
+  for (const p of a) if (b.has(p)) comunes++;
+  return comunes / new Set([...a, ...b]).size >= 0.7;
+}
