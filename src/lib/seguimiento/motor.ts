@@ -114,7 +114,9 @@ Responde solo con el texto del mensaje.`;
     model: agente.model,
     messages: [{ role: "system", content: sistema }, ...historia],
     temperature: 0.5,
-    max_completion_tokens: 300,
+    // Mismo tope que el agente: los modelos que razonan gastan tokens antes de escribir y,
+    // con un tope chico, devuelven el texto vacio (el seguimiento no sale, sin error).
+    max_completion_tokens: 1024,
   });
   const texto = r.choices[0]?.message?.content?.trim();
   return texto ? pulirTexto(texto.replace(/^["“]|["”]$/g, ""), { sinSignosApertura: getConfig().agente.sinSignosApertura }) : null;

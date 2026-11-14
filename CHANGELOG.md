@@ -4,6 +4,20 @@ Que trae cada version de Builder CRM y que hacer para actualizar. SemVer segun l
 le importa a quien opera una instancia (ver "Versiones" en el [README](README.md)):
 mayor = pasos manuales, menor = funciones nuevas, parche = arreglos.
 
+## 2.6.1 — 2026-11-14
+
+### Actualizar desde 2.6.0
+
+Trae esta version y redespliega. Sin migraciones ni variables nuevas.
+
+### Arreglos
+
+- **Seguimiento que no salia con modelos que razonan.** El mensaje de seguimiento se
+  pedia con un tope de 300 tokens; un modelo que razona antes de escribir (como el
+  `nvidia/nemotron-3.5-super-vl:free` de la plantilla) los gastaba enteros pensando y
+  devolvia el texto vacio. El seguimiento quedaba en "no se pudo redactar", sin error ni
+  aviso. Ahora usa el mismo tope que el agente (1024).
+
 ## 2.6.0 — 2026-11-13
 
 ### Actualizar desde 2.5.x
