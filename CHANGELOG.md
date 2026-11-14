@@ -4,6 +4,19 @@ Que trae cada version de Builder CRM y que hacer para actualizar. SemVer segun l
 le importa a quien opera una instancia (ver "Versiones" en el [README](README.md)):
 mayor = pasos manuales, menor = funciones nuevas, parche = arreglos.
 
+## 2.6.2 — 2026-11-14
+
+### Actualizar desde 2.6.1
+
+Trae esta version y redespliega. Sin migraciones ni variables nuevas.
+
+### Arreglos
+
+- **Seguimiento que repetia el ultimo mensaje.** Como el hilo termina en nuestro mensaje,
+  el modelo volvia a contestar la ultima pregunta del cliente ("Hola. Una sesion sale
+  USD 80…") en vez de retomar. Ahora recibe una indicacion final explicita y, si igual
+  sale casi el mismo texto que el anterior, no se envia (`repiteMensajeAnterior`).
+
 ## 2.6.1 — 2026-11-14
 
 ### Actualizar desde 2.6.0

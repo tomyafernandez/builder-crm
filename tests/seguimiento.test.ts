@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { decidirSeguimiento, medirSeguimientos, type EntradaDecision } from "@/lib/seguimiento/decidir";
+import { decidirSeguimiento, medirSeguimientos, repiteMensajeAnterior, type EntradaDecision } from "@/lib/seguimiento/decidir";
 
 /**
  * Spec nucleo/18. El seguimiento le escribe solo a clientes reales: lo que no puede
@@ -119,5 +119,21 @@ describe("seguimiento: medicion para el retorno", () => {
       { conversationId: "c", direction: "in", createdAt: h(0), rawPayload: null },
     ]);
     expect(m).toEqual({ enviados: 3, conversacionesConSeguimiento: 2, recuperadas: 1 });
+  });
+});
+
+describe("repiteMensajeAnterior", () => {
+  const anterior = "Hola Lucía. Una sesión individual sale USD 80. Es tu primera vez en Estudio Norte?";
+
+  it("frena el seguimiento que vuelve a contestar lo mismo", () => {
+    expect(repiteMensajeAnterior("Hola. Una sesion individual sale USD 80. Es tu primera vez en Estudio Norte?", anterior)).toBe(true);
+  });
+
+  it("deja pasar un seguimiento que retoma de otra forma", () => {
+    expect(repiteMensajeAnterior("Te quedó alguna duda con el precio? Si querés te paso los horarios libres de esta semana.", anterior)).toBe(false);
+  });
+
+  it("sin mensaje anterior no frena nada", () => {
+    expect(repiteMensajeAnterior("Te quedó alguna duda?", null)).toBe(false);
   });
 });

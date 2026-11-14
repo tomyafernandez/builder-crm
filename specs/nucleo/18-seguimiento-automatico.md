@@ -21,12 +21,14 @@ mas plata recupera, y por eso la base del retorno de la inversion.
 - D5. Barrido `GET /api/seguimientos/process` (secreto del worker), en `src/lib/barridos.ts` (Coolify) y en el cron de Vercel / GitHub Actions. Hasta 10 envios por corrida.
 - D6. Apagado por defecto (`seguimiento.activo: false`): escribe a clientes reales y se enciende a proposito.
 - D7. Medicion para el retorno: una conversacion se "recupera" si el cliente vuelve a escribir despues de un seguimiento. Pagina Seguimientos (admin) con enviados, recuperadas, ultimos y esperando, y un boton "Probar en el simulador" que solo toca conversaciones del simulador y no espera las horas. Desde 2.6.0 (spec nucleo/19, D5) solo las de contactos creados desde /simulador: los datos demo quedan afuera.
+- D8 (2.6.1). El texto se pide con el mismo tope de tokens que el agente: los modelos que razonan gastaban los 300 de antes pensando y devolvian vacio. (2.6.2) Al hilo se le agrega una indicacion final ("el cliente no respondio, escribi el seguimiento"), porque terminado en nuestro mensaje el modelo volvia a contestar la ultima pregunta. Si aun asi el texto es casi igual a nuestro ultimo mensaje (`repiteMensajeAnterior`, 70 % de palabras en comun), no se envia.
 
 ## Criterios de aceptacion
 
 - [x] Tests puros de cada regla (plazo, conteo de pasos, reinicio al responder, agotados, ventana y plantilla, Instagram, horario, derivacion, pausa, etapas, laboratorio, apagado, prueba) y de la medicion (`tests/seguimiento.test.ts`).
 - [x] Modo local con proveedor de IA simulado: una corrida real no envia antes del plazo; la prueba envia el paso 1 y el 2 y despues no mas; al responder el cliente, el panel cuenta 1 recuperada; el barrido sin secreto da 401.
-- [ ] Pendiente: probarlo con un modelo real y con el numero oficial conectado.
+- [x] Probado con un modelo real en el simulador (2.6.2, `nvidia/nemotron-3.5-super-vl:free`).
+- [ ] Pendiente: probarlo con el numero oficial conectado.
 
 ## Fuera de alcance
 
