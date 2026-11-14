@@ -169,3 +169,25 @@ export async function moverEvento(
     }),
   });
 }
+
+const nombres = new Map<string, { nombre: string | null; vence: number }>();
+
+/**
+ * Nombre del calendario conectado (ej. "Demo Levari"), para mostrarlo en vez del correo
+ * de la cuenta. Sale del listado de eventos (`summary`), que el permiso
+ * calendar.events ya permite. En cache 10 min; si falla, null.
+ */
+export async function nombreCalendario(refreshToken: string, calendarId: string): Promise<string | null> {
+  const clave = `${calendarId}`;
+  const guardado = nombres.get(clave);
+  if (guardado && guardado.vence > Date.now()) return guardado.nombre;
+  let nombre: string | null = null;
+  try {
+    const data = await llamar<{ summary?: string }>(refreshToken, `/calendars/${encodeURIComponent(calendarId)}/events?maxResults=1&fields=summary`);
+    nombre = data.summary?.trim() || null;
+  } catch (err) {
+    console.warn("[agenda] no se pudo leer el nombre del calendario:", err instanceof Error ? err.message : err);
+  }
+  nombres.set(clave, { nombre, vence: Date.now() + 10 * 60_000 });
+  return nombre;
+}

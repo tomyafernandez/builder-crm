@@ -23,7 +23,7 @@ interface Panel {
     descripcion: string | null;
   } & AjustesCobroVista;
   zona: string;
-  google: { configurado: boolean; conectado: boolean; email: string | null; cifrado: boolean };
+  google: { configurado: boolean; conectado: boolean; calendario: string | null; cifrado: boolean };
   esAdmin: boolean;
   citas: Cita[];
 }
@@ -179,8 +179,8 @@ export function AgendaPage() {
                 {panel.google.conectado ? (
                   <>
                     <p>
-                      Conectado{panel.google.email ? ` como ${panel.google.email}` : ""}. El agente mira tu calendario antes de
-                      ofrecer horarios y crea el evento con Meet.
+                      Calendario conectado{panel.google.calendario ? `: ${panel.google.calendario}` : ""}. El agente lo mira antes de
+                      ofrecer horarios y crea ahi el evento con Meet.
                     </p>
                     <Button size="sm" variant="outline" onClick={desconectar} className="cursor-pointer">
                       <Unlink className="h-3.5 w-3.5" /> Desconectar
