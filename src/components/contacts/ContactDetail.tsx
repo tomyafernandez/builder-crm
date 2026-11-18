@@ -87,7 +87,7 @@ export function ContactDetailClient({
   };
 
   const handleDelete = async () => {
-    if (!confirm("Estas seguro de eliminar este contacto? Esta accion no se puede deshacer.")) {
+    if (!confirm("¿Estás seguro de eliminar este contacto? Esta acción no se puede deshacer.")) {
       return;
     }
 
@@ -163,7 +163,7 @@ export function ContactDetailClient({
         {/* Contact info */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Informacion</CardTitle>
+            <CardTitle className="text-base">Información</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="text-sm">
@@ -217,7 +217,7 @@ export function ContactDetailClient({
                   <button
                     onClick={() => handleCopy(contact.phone!, "phone")}
                     className="p-1 rounded hover:bg-muted cursor-pointer"
-                    title="Copiar telefono"
+                    title="Copiar teléfono"
                   >
                     {copiedField === "phone" ? (
                       <Check className="h-3.5 w-3.5 text-green-600" />

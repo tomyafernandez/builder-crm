@@ -7,6 +7,8 @@ import type { ConversationListItem } from "@/lib/conversations";
 interface Props {
   initialConversations: ConversationListItem[];
   selectedId?: string;
+  /** Modo presentacion: sin la etiqueta "sim" (spec nucleo/20). */
+  presentacion?: boolean;
 }
 
 const POLL_INTERVAL_MS = 4000;
@@ -22,6 +24,7 @@ function rehydrate(raw: ConversationListItem): ConversationListItem {
 export function ConversationsListLive({
   initialConversations,
   selectedId,
+  presentacion = false,
 }: Props) {
   const [conversations, setConversations] = useState(initialConversations);
   const mountedRef = useRef(true);
@@ -73,6 +76,6 @@ export function ConversationsListLive({
   }, []);
 
   return (
-    <ConversationsList conversations={conversations} selectedId={selectedId} />
+    <ConversationsList conversations={conversations} selectedId={selectedId} presentacion={presentacion} />
   );
 }

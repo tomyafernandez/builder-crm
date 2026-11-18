@@ -19,7 +19,7 @@ interface Resumen {
   esperando: Array<{ conversationId: string; contacto: string | null; motivo: string }>;
 }
 
-const horas = (h: number) => (h < 24 ? `${h} h` : `${Math.round((h / 24) * 10) / 10} dias`);
+const horas = (h: number) => (h < 24 ? `${h} h` : `${Math.round((h / 24) * 10) / 10} días`);
 
 /** Seguimiento automatico (spec nucleo/18): que salio, que se recupero y que viene. */
 export function Seguimientos() {
@@ -63,7 +63,7 @@ export function Seguimientos() {
     <div>
       <PageHeader
         title="Seguimientos"
-        subtitle="A quien dejo de responder se le vuelve a escribir, segun lo que habia preguntado."
+        subtitle="A quien dejó de responder se le vuelve a escribir, según lo que había preguntado."
       />
       {!r && <Loader2 className="h-4 w-4 animate-spin" />}
       {r && (
@@ -72,7 +72,7 @@ export function Seguimientos() {
             <Card>
               <CardContent className="pt-5">
                 <p className="text-3xl font-semibold">{r.enviados}</p>
-                <p className="text-sm text-muted-foreground">Seguimientos enviados ({r.dias} dias)</p>
+                <p className="text-sm text-muted-foreground">Seguimientos enviados ({r.dias} días)</p>
               </CardContent>
             </Card>
             <Card>
@@ -84,7 +84,7 @@ export function Seguimientos() {
             <Card>
               <CardContent className="pt-5">
                 <p className="text-3xl font-semibold">{tasa === null ? "—" : `${tasa}%`}</p>
-                <p className="text-sm text-muted-foreground">De las seguidas, cuantas respondieron</p>
+                <p className="text-sm text-muted-foreground">De las seguidas, cuántas respondieron</p>
               </CardContent>
             </Card>
           </div>
@@ -92,10 +92,10 @@ export function Seguimientos() {
           <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Ultimos seguimientos</CardTitle>
+                <CardTitle className="text-base">Últimos seguimientos</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
-                {r.recientes.length === 0 && <p className="text-muted-foreground">Todavia no se envio ninguno.</p>}
+                {r.recientes.length === 0 && <p className="text-muted-foreground">Todavía no se envió ninguno.</p>}
                 {r.recientes.map((m, i) => (
                   <a
                     key={i}
@@ -118,7 +118,7 @@ export function Seguimientos() {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-base flex items-center gap-2">
-                    <Repeat className="h-4 w-4" /> Como esta configurado
+                    <Repeat className="h-4 w-4" /> Cómo está configurado
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">
@@ -128,7 +128,7 @@ export function Seguimientos() {
                   <ol className="list-decimal pl-5 text-muted-foreground">
                     {r.pasos.map((p, i) => (
                       <li key={i}>
-                        {horas(p.trasHoras)} despues del ultimo mensaje del cliente
+                        {horas(p.trasHoras)} después del último mensaje del cliente
                         {p.plantilla ? ` (plantilla ${p.plantilla})` : p.trasHoras >= 24 ? " (necesita plantilla en WhatsApp)" : ""}
                       </li>
                     ))}

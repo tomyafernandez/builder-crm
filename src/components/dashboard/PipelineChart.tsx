@@ -68,7 +68,7 @@ export function PipelineChart({ data }: PipelineChartProps) {
           Pipeline de Ventas
         </CardTitle>
         <p className="text-xs text-muted-foreground">
-          Distribucion de deals por etapa
+          Distribución de deals por etapa
         </p>
       </CardHeader>
       <CardContent>

@@ -7,6 +7,7 @@ import { conectorParaConversacion } from "./conectores";
 import type { ConversationRow, OutboundMessage } from "./conector";
 import { touchConversation } from "./ingest";
 import type { Channel } from "./types";
+import { enlacesComoTexto } from "@/lib/enlaces";
 import {
   destinoPermitido,
   ERROR_FUERA_DE_LISTA,
@@ -117,9 +118,13 @@ export async function deliverMessage(
     .returning({ id: messages.id });
 
   const account = await getAccountById(conversation.accountId);
+  // Spec nucleo/20: un canal real no entiende "[texto](url)"; le llega "texto: url".
+  // El hilo guarda la version con texto, que la bandeja muestra como link.
+  const salida =
+    conversation.provider !== "simulador" && msg.text ? { ...msg, text: enlacesComoTexto(msg.text) } : msg;
   const outcome = await conector.enviar(
     { conversation, account, channel: conversation.channel as Channel },
-    msg
+    salida
   );
 
   if (!outcome.success) {

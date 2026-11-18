@@ -76,6 +76,9 @@ function handleOf(row: {
   participantId: string | null;
   phone: string | null;
 }): string | null {
+  // El id interno del simulador ("sim:uuid") no le dice nada a nadie: se muestra el
+  // telefono de prueba del contacto.
+  if (row.participantId?.startsWith("sim:")) return row.phone;
   if (row.channel === "whatsapp") return row.participantId ?? row.phone;
   if (row.participantHandle) return `@${row.participantHandle.replace(/^@/, "")}`;
   return row.participantId;

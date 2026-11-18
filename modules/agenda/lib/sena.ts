@@ -147,8 +147,9 @@ export function ventanaAbierta(lastInboundAt: Date | null, ahora: Date): boolean
 
 export function primerNombre(nombre: string | null | undefined): string {
   const n = (nombre ?? "").trim().split(/\s+/)[0] ?? "";
-  // Los contactos del simulador se llaman "Cliente simulado 1a2b": no saludar asi.
-  return /^cliente$/i.test(n) ? "" : n;
+  // Sin nombre todavia el contacto se ve como su numero ("+54 9 11..."), y los viejos del
+  // simulador se llamaban "Cliente simulado 1a2b": a ninguno se lo saluda asi.
+  return /^cliente$/i.test(n) || !/^\p{L}/u.test(n) ? "" : n;
 }
 
 export function textoRecordatorio(nombre: string | null, cuando: string, servicio: string | null): string {

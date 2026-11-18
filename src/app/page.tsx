@@ -105,7 +105,7 @@ export default async function DashboardPage() {
             Todo listo para empezar
           </h2>
           <p className="text-sm text-muted-foreground mb-4">
-            Todavia no hay contactos. Tres caminos para arrancar:
+            Todavía no hay contactos. Tres caminos para arrancar:
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
             <div className="p-3.5 rounded-xl bg-card border border-border/60">
@@ -121,7 +121,7 @@ export default async function DashboardPage() {
               </p>
             </div>
             <div className="p-3.5 rounded-xl bg-card border border-border/60">
-              <p className="font-medium">3. Carga datos de demostracion</p>
+              <p className="font-medium">3. Cargá datos de demostración</p>
               <p className="text-xs text-muted-foreground mt-1 mb-2">
                 Contactos, conversaciones y operaciones inventados para ver el CRM lleno.
               </p>

@@ -38,7 +38,7 @@ export function KPICards({ stats, contactos }: KPICardsProps) {
       iconClass: "bg-sky-50 text-sky-600",
       watermarkClass: "text-sky-500/8",
       delta: contactos
-        ? { pct: deltaContactos, label: `${contactos.actual} nuevos en 7 dias` }
+        ? { pct: deltaContactos, label: `${contactos.actual} nuevos en 7 días` }
         : undefined,
       sparkline: contactos?.serie,
     },
@@ -57,7 +57,7 @@ export function KPICards({ stats, contactos }: KPICardsProps) {
       watermarkClass: "text-emerald-500/8",
     },
     {
-      title: "Tasa de conversion",
+      title: "Tasa de conversión",
       value: `${stats.conversionRate}%`,
       icon: TrendingUp,
       iconClass: "bg-amber-50 text-amber-600",

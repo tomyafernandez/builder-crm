@@ -154,6 +154,7 @@ describe("recordatorio: el dia se nombra en la zona del negocio", () => {
       "Hola Lucía, te recuerdo tu turno de sesión individual mañana a las 17:00. Me confirmás que venís?"
     );
     expect(textoRecordatorio("Cliente simulado 1a2b", "hoy a las 10:00", null)).toBe("Hola, te recuerdo tu turno hoy a las 10:00. Me confirmás que venís?");
+    expect(textoRecordatorio("+54 9 11 5123-4567", "hoy a las 10:00", null)).toBe("Hola, te recuerdo tu turno hoy a las 10:00. Me confirmás que venís?");
   });
 });
 

@@ -207,17 +207,17 @@ export async function serieContactos(member: TeamMember, dias = 7): Promise<{ se
     group by 1`)) as unknown as Fila[];
   const map = new Map(rows.map((r) => [String(r.dia), n(r.cantidad)]));
   const serie: number[] = [];
-  let actual = 0;
-  let anterior = 0;
-  for (let i = 2 * dias - 1; i >= 0; i--) {
+  for (let i = dias - 1; i >= 0; i--) {
     const d = new Date(ahora.getTime() - i * 86_400_000).toISOString().slice(0, 10);
-    const v = map.get(d) ?? 0;
-    if (i < dias) {
-      serie.push(v);
-      actual += v;
-    } else {
-      anterior += v;
-    }
+    serie.push(map.get(d) ?? 0);
   }
-  return { serie, actual, anterior };
+  // La comparacion va por ventanas de 24 h, no por dias de calendario: con dias, el de
+  // hoy (a medias) entraba entero en la semana actual y la flecha bajaba sola segun la
+  // hora a la que se mirara el panel.
+  const [totales] = (await db.execute(sql`
+    select count(*) filter (where ct.created_at >= ${desde.toISOString()}::timestamptz) as actual,
+           count(*) filter (where ct.created_at < ${desde.toISOString()}::timestamptz) as anterior
+    from contacts ct
+    where ct.created_at >= ${desdePrevIso}::timestamptz and ct.source <> 'simulador' ${owner}`)) as unknown as Array<{ actual: unknown; anterior: unknown }>;
+  return { serie, actual: n(totales?.actual), anterior: n(totales?.anterior) };
 }

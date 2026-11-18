@@ -73,7 +73,7 @@ const panel: HandlerModulo = async (_req, { member }) => {
 const guardar: HandlerModulo = async (req, { member }) => {
   if (member.role !== "admin") return soloAdmin();
   const b = (await req.json().catch(() => null)) as Record<string, unknown> | null;
-  if (!b) return NextResponse.json({ error: "JSON invalido" }, { status: 400 });
+  if (!b) return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
   const hora = /^([01]\d|2[0-3]):[0-5]\d$/;
   const dias = Array.isArray(b.dias) ? b.dias.map(Number).filter((d) => d >= 0 && d <= 6) : undefined;
   const desde = typeof b.desde === "string" && hora.test(b.desde) ? b.desde : undefined;
@@ -139,7 +139,7 @@ const pagar = async (_req: Request, { params }: { params: Record<string, string>
       no_encontrada: "No encontramos esta reserva",
       vencida: "La reserva vencio: se libero el horario",
       cancelada: "La reserva fue cancelada",
-      sin_sena: "Esta reserva no tiene sena para pagar",
+      sin_sena: "Esta reserva no tiene seña para pagar",
     };
     return NextResponse.json({ error: textos[r.motivo] }, { status: r.motivo === "no_encontrada" ? 404 : 409 });
   }
@@ -255,16 +255,16 @@ const modulo: ModuloServidor = {
         function: {
           name: "agenda_ver_horarios",
           description:
-            "Devuelve los proximos horarios LIBRES reales para una llamada o cita (hasta 4) y, si hay, los servicios con su precio y su sena. Usala antes de proponer horarios; nunca inventes una hora ni un precio. Ofrece al cliente 2 o 3 de estas opciones con su etiqueta.",
+            "Devuelve los próximos horarios LIBRES reales para una llamada o cita (hasta 4) y, si hay, los servicios con su precio y su seña. Usala antes de proponer horarios; nunca inventes una hora ni un precio. Ofrece al cliente 2 o 3 de estas opciones con su etiqueta.",
           parameters: { type: "object", properties: {}, additionalProperties: false },
         },
       },
-      descripcionUI: "Consultar horarios libres de la agenda (y de Google Calendar si esta conectado).",
+      descripcionUI: "Consultar horarios libres de la agenda (y de Google Calendar si está conectado).",
       async ejecutar(_args, ctx) {
         const opciones = await ofrecerHorarios(ctx.conversationId ?? null);
         const servicios = serviciosParaAgente(await leerAjustes(), formatCurrency);
         if (opciones.length === 0) {
-          return { ok: true, data: { opciones: [], servicios, mensaje: "No hay horarios libres en los proximos dias: deriva a una persona." } };
+          return { ok: true, data: { opciones: [], servicios, mensaje: "No hay horarios libres en los próximos días: deriva a una persona." } };
         }
         return { ok: true, data: servicios.length ? { opciones, servicios } : { opciones } };
       },
@@ -275,16 +275,16 @@ const modulo: ModuloServidor = {
         function: {
           name: "agenda_agendar",
           description:
-            "Agenda la llamada o cita en UNO de los horarios que ofreciste con agenda_ver_horarios, cuando el cliente ya eligio. Solo confirma al cliente si esta herramienta devuelve ok. Si hay servicios, pasa el servicio elegido. Si devuelve una sena pendiente, el turno NO esta confirmado: mandale el link de pago y el plazo. Si tenes su email, pasalo para que le llegue la invitacion.",
+            "Agenda la llamada o cita en UNO de los horarios que ofreciste con agenda_ver_horarios, cuando el cliente ya eligio. Solo confirma al cliente si esta herramienta devuelve ok. Si hay servicios, pasa el servicio elegido. Si devuelve una seña pendiente, el turno NO esta confirmado: mandale el link de pago y el plazo. Si tenes su email, pasalo para que le llegue la invitación.",
           parameters: {
             type: "object",
             properties: {
               horario: {
                 type: "string",
-                description: "El horario elegido tal como lo ofreciste, con dia y hora (ej. 'lunes 9 de noviembre, 10:30'), o el valor 'inicio' de la opcion.",
+                description: "El horario elegido tal como lo ofreciste, con día y hora (ej. 'lunes 9 de noviembre, 10:30'), o el valor 'inicio' de la opcion.",
               },
               servicio: { type: "string", description: "Nombre del servicio elegido, tal como lo devolvio agenda_ver_horarios (si hay servicios)." },
-              email: { type: "string", description: "Email del cliente para la invitacion (opcional)." },
+              email: { type: "string", description: "Email del cliente para la invitación (opcional)." },
               notas: { type: "string", description: "Contexto breve para quien atiende la llamada." },
             },
             required: ["horario"],
@@ -292,7 +292,7 @@ const modulo: ModuloServidor = {
           },
         },
       },
-      descripcionUI: "Agendar la llamada o cita en un horario ofrecido (crea el evento con Meet si Google esta conectado).",
+      descripcionUI: "Agendar la llamada o cita en un horario ofrecido (crea el evento con Meet si Google está conectado).",
       async ejecutar(args, ctx) {
         const horario = String(args.horario ?? args.inicio ?? "").trim();
         if (!horario) return { ok: false, error: "falta el horario elegido" };
@@ -317,8 +317,10 @@ const modulo: ModuloServidor = {
               servicio: p.servicio,
               sena: formatCurrency(p.montoCentavos),
               linkPago: p.linkPago,
+              // Spec nucleo/20: el link sale como "Paga tu sena aca", no como la URL larga.
+              enlaces: [{ url: p.linkPago, texto: "Pagá tu seña acá" }],
               plazo: p.venceEnMin >= 60 ? `${Math.round(p.venceEnMin / 60)} hora${p.venceEnMin >= 120 ? "s" : ""}` : `${p.venceEnMin} minutos`,
-              nota: "Mandale el link de pago tal cual, con el monto de la sena y el plazo. Aclarale que el turno queda confirmado cuando se acredita la sena; si no se paga a tiempo se libera el horario. No digas que ya esta confirmado.",
+              nota: "Pega el link de pago tal cual (el sistema lo muestra como un boton corto), con el monto de la seña y el plazo. Aclarale que el turno queda confirmado cuando se acredita la seña; si no se paga a tiempo se libera el horario. No digas que ya esta confirmado.",
             },
           };
         }
@@ -330,8 +332,8 @@ const modulo: ModuloServidor = {
             linkMeet: r.cita.meet,
             invitacionPorEmail: r.cita.invitacionEnviada,
             nota: r.cita.meet
-              ? "Comparti el dia, la hora y el link de Meet."
-              : "Comparti el dia y la hora; el link de la llamada se lo pasa el equipo.",
+              ? "Comparti el día, la hora y el link de Meet."
+              : "Comparti el día y la hora; el link de la llamada se lo pasa el equipo.",
           },
         };
       },
@@ -341,14 +343,14 @@ const modulo: ModuloServidor = {
         type: "function",
         function: {
           name: "agenda_mis_turnos",
-          description: "Devuelve los proximos turnos de este cliente (dia y hora, servicio, si espera la sena). Usala cuando pregunte por su turno o quiera confirmarlo o cambiarlo.",
+          description: "Devuelve los próximos turnos de este cliente (día y hora, servicio, si espera la seña). Usala cuando pregunte por su turno o quiera confirmarlo o cambiarlo.",
           parameters: { type: "object", properties: {}, additionalProperties: false },
         },
       },
-      descripcionUI: "Ver los proximos turnos del cliente.",
+      descripcionUI: "Ver los próximos turnos del cliente.",
       async ejecutar(_args, ctx) {
         const turnos = await misTurnos(ctx.contactId);
-        return { ok: true, data: turnos.length ? { turnos } : { turnos: [], mensaje: "No tiene turnos proximos." } };
+        return { ok: true, data: turnos.length ? { turnos } : { turnos: [], mensaje: "No tiene turnos próximos." } };
       },
     },
     {
@@ -356,7 +358,7 @@ const modulo: ModuloServidor = {
         type: "function",
         function: {
           name: "agenda_confirmar_asistencia",
-          description: "Registra que el cliente confirmo que viene a su turno (por ejemplo cuando responde que si al recordatorio). Sin turno, toma el proximo.",
+          description: "Registra que el cliente confirmo que viene a su turno (por ejemplo cuando responde que si al recordatorio). Sin turno, toma el próximo.",
           parameters: {
             type: "object",
             properties: { turno: { type: "string", description: "id del turno de agenda_mis_turnos (opcional)." } },
@@ -376,7 +378,7 @@ const modulo: ModuloServidor = {
         function: {
           name: "agenda_reprogramar",
           description:
-            "Cambia el turno del cliente a UNO de los horarios que le ofreciste con agenda_ver_horarios. Conserva la sena pagada y mueve el evento del calendario. Solo confirma el cambio si devuelve ok.",
+            "Cambia el turno del cliente a UNO de los horarios que le ofreciste con agenda_ver_horarios. Conserva la seña pagada y mueve el evento del calendario. Solo confirma el cambio si devuelve ok.",
           parameters: {
             type: "object",
             properties: {
@@ -388,7 +390,7 @@ const modulo: ModuloServidor = {
           },
         },
       },
-      descripcionUI: "Reprogramar el turno del cliente a un horario ofrecido (conserva la sena y mueve el evento).",
+      descripcionUI: "Reprogramar el turno del cliente a un horario ofrecido (conserva la seña y mueve el evento).",
       async ejecutar(args, ctx) {
         const r = await reprogramar({
           contactId: ctx.contactId,
@@ -403,7 +405,12 @@ const modulo: ModuloServidor = {
             reprogramado: true,
             antes: r.antes,
             cuando: r.cuando,
-            nota: r.esperaSena ? "El turno sigue esperando la sena." : r.conservaSena ? "La sena pagada queda para el turno nuevo." : undefined,
+            nota: [
+              r.esperaSena ? "El turno sigue esperando la seña." : r.conservaSena ? "La seña pagada queda para el turno nuevo." : "",
+              "Si en la ficha guardaste un dato con la fecha del turno, actualizalo con actualizar_contacto antes de responder.",
+            ]
+              .filter(Boolean)
+              .join(" "),
           },
         };
       },

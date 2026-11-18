@@ -57,7 +57,7 @@ function putWithProgress(url: string, file: File, onProgress: (pct: number) => v
     xhr.onload = () =>
       xhr.status >= 200 && xhr.status < 300
         ? resolve()
-        : reject(new Error(`El bucket respondio ${xhr.status}`));
+        : reject(new Error(`El bucket respondió ${xhr.status}`));
     xhr.onerror = () => reject(new Error("No se pudo conectar con el almacenamiento (CORS o red)"));
     xhr.send(file);
   });

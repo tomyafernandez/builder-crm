@@ -179,7 +179,7 @@ export function TemplatePicker({
               <div className="py-8 text-center">
                 <FileText className="h-8 w-8 mx-auto text-muted-foreground/50" />
                 <p className="mt-2 text-sm text-muted-foreground">
-                  No tenes plantillas aprobadas todavia.
+                  No tenés plantillas aprobadas todavía.
                 </p>
                 <a
                   href="/plantillas"

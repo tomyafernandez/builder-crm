@@ -99,8 +99,8 @@ export function ChatInput({
           <Clock className="h-3.5 w-3.5 shrink-0" />
           <span className="flex-1">
             {lastInboundAt
-              ? "Pasaron mas de 24h desde el ultimo mensaje del cliente."
-              : "Sin mensajes del cliente todavia."}{" "}
+              ? "Pasaron más de 24h desde el último mensaje del cliente."
+              : "Sin mensajes del cliente todavía."}{" "}
             {caps.templates
               ? "Fuera de esa ventana WhatsApp solo permite enviar plantillas aprobadas."
               : "El mensaje se envia con la etiqueta HUMAN_AGENT, que Meta permite hasta 7 dias."}

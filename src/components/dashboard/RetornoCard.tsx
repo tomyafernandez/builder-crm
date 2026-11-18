@@ -15,8 +15,8 @@ export function RetornoCard({ retorno }: { retorno: Retorno }) {
     <Card className="border-primary/20">
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-primary" /> Lo que te dejo el sistema
-          <span className="text-xs font-normal text-muted-foreground">ultimos {retorno.dias} dias</span>
+          <Sparkles className="h-4 w-4 text-primary" /> Lo que te dejó el sistema
+          <span className="text-xs font-normal text-muted-foreground">últimos {retorno.dias} días</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -39,7 +39,7 @@ export function RetornoCard({ retorno }: { retorno: Retorno }) {
           ))}
         </div>
         <div className="flex flex-wrap items-baseline justify-between gap-2 rounded-xl bg-primary/5 px-4 py-3">
-          <p className="text-sm font-medium">Total en {retorno.dias} dias</p>
+          <p className="text-sm font-medium">Total en {retorno.dias} días</p>
           <p className="text-2xl font-semibold tabular-nums text-primary">
             {formatCurrency(retorno.totalCentavos)}
             {retorno.totalEstimado && <span className="ml-2 text-xs font-normal text-muted-foreground">incluye estimados</span>}
