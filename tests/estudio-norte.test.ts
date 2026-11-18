@@ -52,3 +52,16 @@ describe("estudio norte: datos deterministicos", () => {
     expect(r.consultas / 30).toBeGreaterThan(55);
   });
 });
+
+describe("estudio norte: contactos nuevos", () => {
+  it("la ultima semana tiene una leve suba sobre la anterior (flecha verde del panel)", () => {
+    for (const ahora of [Date.UTC(2026, 10, 13, 22, 0), Date.UTC(2026, 10, 18, 3, 30), Date.UTC(2026, 11, 2, 15, 0)]) {
+      const f = generar(ahora, () => "x");
+      const actual = f.filter((x) => x.creada >= ahora - 7 * DIA).length;
+      const anterior = f.filter((x) => x.creada < ahora - 7 * DIA && x.creada >= ahora - 14 * DIA).length;
+      const suba = actual / anterior - 1;
+      expect(suba).toBeGreaterThan(0.02);
+      expect(suba).toBeLessThan(0.12);
+    }
+  });
+});

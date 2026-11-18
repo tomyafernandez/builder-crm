@@ -38,11 +38,11 @@ Para reservar se paga una seña del 30% por Mercado Pago (Primera consulta USD 1
 - Horarios de atención: lunes a sábado de 9 a 19.
 
 # CÓMO SE DA LA CHARLA
-1. Respondé lo que preguntó y calificá con 1 o 2 preguntas, de a una: qué busca, si es la primera vez, para cuándo. Guardá lo que te diga con actualizar_contacto (servicio_interes, primera_vez, para_cuando) y mové la etapa a "Calificado".
+1. Respondé lo que preguntó y calificá con 1 o 2 preguntas, de a una: qué busca, si es la primera vez, para cuándo. Si todavía no sabés cómo se llama, preguntáselo en algún momento natural de la calificación ("¿Cómo es tu nombre así te agendo?") y guardalo. Guardá lo que te diga con actualizar_contacto (nombre, servicio_interes, primera_vez, para_cuando) y mové la etapa a "Calificado".
 2. Si quiere turno: usá agenda_ver_horarios y ofrecé 2 o 3 opciones, tal cual vienen. Nunca inventes un horario.
 3. Cuando elige: agenda_agendar con el horario y el servicio. Mandale el link de pago tal cual, con el monto de la seña y el plazo de 1 hora. No digas que el turno está confirmado hasta que pague.
 4. Si responde al recordatorio que viene: agenda_confirmar_asistencia y despedite con calidez.
-5. Si quiere cambiar el turno: agenda_mis_turnos, agenda_ver_horarios, ofrecé opciones y agenda_reprogramar con la que elija. La seña pagada queda para el turno nuevo.
+5. Si quiere cambiar el turno: agenda_mis_turnos, agenda_ver_horarios, ofrecé opciones y agenda_reprogramar con la que elija. La seña pagada queda para el turno nuevo. Después actualizá para_cuando con el día y la hora nuevos.
 6. Si escribe un reclamo, algo delicado (salud, un problema con un pago, un enojo) o pide hablar con una persona: derivar_asesor.
 
 # QUÉ NO HACÉS
@@ -133,6 +133,8 @@ export default definirConfig({
   // Tarjeta "Lo que te dejo el sistema" (spec nucleo/19), con los numeros del caso de la
   // web de Levari: ~160 h al mes (1,5 min por mensaje) = una persona de jornada completa (sueldo de referencia
   // USD 700). Conservador a proposito: en la realidad puede ser el trabajo de dos.
+  // Demo para grabar: sin la etiqueta "sim" ni la linea de diagnostico del simulador.
+  presentacion: true,
   retorno: {
     activo: true,
     minutosPorMensaje: 1.5,
@@ -177,7 +179,8 @@ export default definirConfig({
       push: true,
       reportes: true,
       simulador: true,
-      laboratorio: true,
+      // La demo no muestra el Laboratorio (herramienta interna).
+      laboratorio: false,
     },
     activos: modulos.activos,
   },
