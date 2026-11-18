@@ -113,6 +113,8 @@ export const PARAMETROS = {
   confirmaRecordatorio: 0.68,
   /** Dias de antiguedad desde los que una reserva ya tuvo su recordatorio (ver abajo). */
   diasConRecordatorio: 10,
+  /** Consultas de mas por dia en los ultimos 7 dias (la flecha verde del panel). */
+  subaUltimaSemana: 6,
 };
 
 const DIA = 86_400_000;
@@ -132,7 +134,7 @@ const MIN = 60_000;
  * Lo unico que cambia con la fecha es en que dia y hora cae cada turno (domingos y choques
  * de horario), que no entra en ninguna cuenta.
  */
-export function generar(ahoraMs: number, urlPago: (i: number) => string, semilla = 20261113): Fila[] {
+export function generar(ahoraMs: number, urlPago: (i: number) => string, semilla = 20270566): Fila[] {
   const r = mulberry32(semilla);
   const ocupados = new Set<number>();
   const filas: Fila[] = [];
@@ -140,7 +142,9 @@ export function generar(ahoraMs: number, urlPago: (i: number) => string, semilla
   const P = PARAMETROS;
 
   for (let k = 29; k >= 0; k--) {
-    const n = 52 + Math.floor(r() * 17); // 52 a 68 por dia
+    // 52 a 68 por dia, con una leve suba en la ultima semana: el panel compara los
+    // ultimos 7 dias contra los 7 anteriores y un negocio que funciona crece.
+    const n = 52 + Math.floor(r() * 17) + (k < 7 ? P.subaUltimaSemana : 0);
     for (let j = 0; j < n; j++) {
       const u = Array.from({ length: 24 }, () => r());
       let c = 0;
