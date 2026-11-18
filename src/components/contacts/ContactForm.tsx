@@ -30,7 +30,7 @@ import type { ValoresCampos } from "@/lib/config/campos";
 
 const contactSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
-  email: z.string().email("Email invalido").or(z.literal("")),
+  email: z.string().email("Email inválido").or(z.literal("")),
   phone: z.string(),
   company: z.string(),
   source: z.string(),
@@ -154,7 +154,7 @@ export function ContactForm({ open, onClose, initialData }: ContactFormProps) {
               <Input id="email" type="email" {...register("email")} placeholder="correo@ejemplo.com" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phone">Telefono</Label>
+              <Label htmlFor="phone">Teléfono</Label>
               <Input id="phone" {...register("phone")} placeholder="+52 55 1234 5678" />
             </div>
           </div>

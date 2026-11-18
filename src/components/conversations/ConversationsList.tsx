@@ -15,9 +15,10 @@ import { ChannelFilter } from "./ChannelFilter";
 interface Props {
   conversations: ConversationListItem[];
   selectedId?: string;
+  presentacion?: boolean;
 }
 
-export function ConversationsList({ conversations, selectedId }: Props) {
+export function ConversationsList({ conversations, selectedId, presentacion = false }: Props) {
   const [search, setSearch] = useState("");
   const [channel, setChannel] = useState<Channel | "all">("all");
 
@@ -74,14 +75,14 @@ export function ConversationsList({ conversations, selectedId }: Props) {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por nombre, usuario o telefono"
+            placeholder="Buscar por nombre, usuario o teléfono"
             className="w-full h-8 pl-8 pr-7 text-[12px] rounded-md border border-border/70 bg-muted/40 placeholder:text-muted-foreground focus:outline-none focus:bg-card focus:border-border focus:ring-2 focus:ring-primary/20 transition-colors"
           />
           {search && (
             <button
               type="button"
               onClick={() => setSearch("")}
-              aria-label="Limpiar busqueda"
+              aria-label="Limpiar búsqueda"
               className="absolute right-1.5 top-1/2 -translate-y-1/2 inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground hover:bg-muted/60 cursor-pointer"
             >
               <X className="h-3 w-3" />
@@ -100,7 +101,7 @@ export function ConversationsList({ conversations, selectedId }: Props) {
             </p>
             <p className="text-xs text-muted-foreground mt-1">
               Cuando alguien te escriba por WhatsApp, Instagram o Messenger,
-              va a aparecer aca.
+              va a aparecer acá.
             </p>
           </div>
         ) : filtered.length === 0 ? (
@@ -157,9 +158,9 @@ export function ConversationsList({ conversations, selectedId }: Props) {
                       <div className="flex items-baseline gap-2">
                         <span className="text-[13px] font-medium truncate flex-1 flex items-center gap-1.5">
                           {c.name}
-                          {c.provider === "simulador" && (
+                          {c.provider === "simulador" && !presentacion && (
                             <span
-                              title="Conversacion simulada: nada sale a un canal real"
+                              title="Conversación simulada: nada sale a un canal real"
                               className="shrink-0 inline-flex items-center h-4 px-1 rounded-sm bg-violet-100 text-violet-800 text-[9px] font-semibold uppercase tracking-wide dark:bg-violet-950/40 dark:text-violet-300"
                             >
                               sim

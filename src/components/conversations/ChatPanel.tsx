@@ -20,6 +20,7 @@ import {
 import { CHANNEL_LABELS, type Channel } from "@/lib/channels/types";
 import { CHANNEL_COLORS, ChannelIcon } from "@/components/icons/channels";
 import { ConversationActions } from "./ConversationActions";
+import { TextoConEnlaces } from "./TextoConEnlaces";
 
 interface Contact {
   id: string;
@@ -185,10 +186,10 @@ export function ChatPanel({
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center">
             <p className="text-sm text-muted-foreground">
-              Sin mensajes todavia.
+              Sin mensajes todavía.
             </p>
             <p className="text-xs text-muted-foreground/70 mt-1">
-              Escribi abajo y presiona Enter para enviar el primero.
+              Escribí abajo y presioná Enter para enviar el primero.
             </p>
           </div>
         ) : (
@@ -224,7 +225,7 @@ export function ChatPanel({
                         : "bg-card text-foreground border-border shadow-xs rounded-bl-md",
                     )}
                   >
-                    {m.body || (
+                    {m.body ? <TextoConEnlaces texto={m.body} /> : (
                       <span className="italic text-current/60">
                         ({m.type})
                       </span>

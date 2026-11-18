@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { getCurrentMember } from "@/lib/team";
-import { moduloActivo } from "@/lib/config";
+import { getConfig, moduloActivo } from "@/lib/config";
 import { Simulador } from "@/components/simulador/Simulador";
 
 export const dynamic = "force-dynamic";
@@ -17,5 +17,5 @@ export default async function SimuladorPage() {
   if (!member) redirect("/sin-acceso");
   if (member.role !== "admin") notFound();
 
-  return <Simulador />;
+  return <Simulador presentacion={getConfig().presentacion} />;
 }

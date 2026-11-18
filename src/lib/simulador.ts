@@ -51,15 +51,19 @@ export async function crearConversacionSimulada(input: {
 
   const uuid = crypto.randomUUID();
   const externalId = `sim:${uuid}`;
-  const nombre = input.nombre?.trim() || `Cliente simulado ${uuid.slice(0, 4)}`;
+  // Como un contacto real que todavia no dio su nombre: se ve su numero (inventado) y el
+  // agente le pregunta como se llama. El marcador de simulacion es `source`, no el nombre.
+  const telefono = telefonoDePrueba(uuid);
+  const nombre = input.nombre?.trim() || telefono;
   const now = new Date();
 
   const [contact] = await db
     .insert(contacts)
     .values({
       name: nombre,
+      phone: telefono,
       source: "simulador",
-      tags: ["simulador"],
+      tags: [],
       tenantId,
       createdAt: now,
       updatedAt: now,
@@ -188,4 +192,10 @@ export async function listarConversacionesSimuladas(limit = 20) {
     .where(eq(conversations.provider, PROVEEDOR_SIMULADOR))
     .orderBy(desc(conversations.lastMessageAt))
     .limit(limit);
+}
+
+/** Numero argentino de prueba, estable para cada conversacion: +54 9 11 5xxx-xxxx. */
+export function telefonoDePrueba(uuid: string): string {
+  const d = uuid.replace(/[^0-9]/g, "").padEnd(7, "0");
+  return `+54 9 11 5${d.slice(0, 3)}-${d.slice(3, 7)}`;
 }

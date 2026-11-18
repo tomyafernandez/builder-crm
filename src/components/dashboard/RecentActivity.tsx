@@ -64,7 +64,7 @@ export function RecentActivity({ activities }: RecentActivityProps) {
           Actividad Reciente
         </CardTitle>
         <p className="text-xs text-muted-foreground">
-          Ultimos eventos del equipo
+          Últimos eventos del equipo
         </p>
       </CardHeader>
       <CardContent>

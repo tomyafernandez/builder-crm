@@ -32,7 +32,7 @@ const API = "/api/m/agenda";
 const DIAS = ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"];
 const MENSAJES: Record<string, string> = {
   ok: "Google Calendar conectado",
-  cancelado: "Cancelaste la conexion con Google",
+  cancelado: "Cancelaste la conexión con Google",
   estado_invalido: "La conexion vencio, volve a intentarlo",
   error: "Google no acepto la conexion. Revisa el cliente OAuth y la URL de retorno.",
   solo_admin: "Solo un administrador puede conectar Google",
@@ -125,7 +125,7 @@ export function AgendaPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <CalendarCheck className="h-4 w-4" /> Proximas ({proximas.length})
+                <CalendarCheck className="h-4 w-4" /> Próximas ({proximas.length})
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
@@ -180,7 +180,7 @@ export function AgendaPage() {
                   <>
                     <p>
                       Calendario conectado{panel.google.calendario ? `: ${panel.google.calendario}` : ""}. El agente lo mira antes de
-                      ofrecer horarios y crea ahi el evento con Meet.
+                      ofrecer horarios y crea ahí el evento con Meet.
                     </p>
                     <Button size="sm" variant="outline" onClick={desconectar} className="cursor-pointer">
                       <Unlink className="h-3.5 w-3.5" /> Desconectar
@@ -232,10 +232,10 @@ export function AgendaPage() {
                   <Campo etiqueta="Hasta">
                     <Input type="time" value={ajustes.hasta} onChange={(e) => setAjustes({ ...ajustes, hasta: e.target.value })} />
                   </Campo>
-                  <Campo etiqueta="Duracion (min)">
+                  <Campo etiqueta="Duración (min)">
                     <Input type="number" value={ajustes.duracionMin} onChange={(e) => setAjustes({ ...ajustes, duracionMin: Number(e.target.value) })} />
                   </Campo>
-                  <Campo etiqueta="Aviso minimo (h)">
+                  <Campo etiqueta="Aviso mínimo (h)">
                     <Input
                       type="number"
                       value={Math.round(ajustes.anticipacionMin / 60)}
@@ -243,7 +243,7 @@ export function AgendaPage() {
                     />
                   </Campo>
                 </div>
-                <Campo etiqueta="Titulo del evento">
+                <Campo etiqueta="Título del evento">
                   <Input value={ajustes.titulo} onChange={(e) => setAjustes({ ...ajustes, titulo: e.target.value })} />
                 </Campo>
                 <p className="text-xs text-muted-foreground">Zona horaria: {panel.zona} (se cambia en config/cliente.ts).</p>

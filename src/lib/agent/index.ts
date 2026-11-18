@@ -12,6 +12,7 @@ import { renderContexto, renderSystemPrompt } from "./prompt";
 import { executeTool, getEnabledToolDefinitions, type ToolContext } from "./tools";
 import { getOpenRouterClient, getAgentModel, hasOpenRouterKey } from "./openrouter";
 import { armarHistorial, ultimoEntrante, type Historial } from "./historial";
+import { aplicarEnlaces, type Enlace } from "@/lib/enlaces";
 import { RECORDATORIO_NO_CALLAR } from "./prompt";
 
 const MAX_TOOL_ROUNDS = 6;
@@ -95,6 +96,9 @@ export async function runAgentForConversation(
   const client = getOpenRouterClient();
   let toolCalls = 0;
   let reintentoVacio = false;
+  // Links que devolvieron las tools con su texto (spec nucleo/20): si el modelo los pega
+  // sueltos, salen como "[Paga tu sena aca](url)".
+  const enlaces: Enlace[] = [];
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
     const completion = await client.chat.completions.create({
@@ -125,6 +129,7 @@ export async function runAgentForConversation(
 
         const result = await executeTool(tc.function.name, args, ctx);
         if (result.ok && result.stop) detenido = true;
+        enlaces.push(...enlacesDe(result));
 
         llmMessages.push({ role: "tool", tool_call_id: tc.id, content: JSON.stringify(result) });
       }
@@ -142,7 +147,7 @@ export async function runAgentForConversation(
       continue;
     }
 
-    const reply = pulirTexto(assistantMsg.content?.trim() ?? "", { sinSignosApertura: getConfig().agente.sinSignosApertura });
+    const reply = aplicarEnlaces(pulirTexto(assistantMsg.content?.trim() ?? "", { sinSignosApertura: getConfig().agente.sinSignosApertura }), enlaces);
     if (!reply) {
       // Spec nucleo/15: el agente no se queda callado. Una respuesta vacia ante un
       // saludo o un "prueba" dejaba al cliente sin nada. Se le recuerda la regla UNA vez;
@@ -222,3 +227,12 @@ export const agentConfig = {
   maxToolRounds: MAX_TOOL_ROUNDS,
   historyLimit: HISTORY_LIMIT,
 };
+
+/** `data.enlaces` de una tool ([{ url, texto }]), si trae. */
+function enlacesDe(result: unknown): Enlace[] {
+  const data = (result as { ok?: boolean; data?: { enlaces?: unknown } } | null)?.data;
+  if (!Array.isArray(data?.enlaces)) return [];
+  return data.enlaces.filter(
+    (e): e is Enlace => typeof e?.url === "string" && typeof e?.texto === "string"
+  );
+}

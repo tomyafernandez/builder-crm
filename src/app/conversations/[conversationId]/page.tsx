@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import { getConfig } from "@/lib/config";
 import {
   listConversations,
   listConversationsForContact,
@@ -53,6 +54,7 @@ export default async function ConversationPage({ params }: Props) {
       <ConversationsListLive
         initialConversations={conversations}
         selectedId={conversationId}
+        presentacion={getConfig().presentacion}
       />
       <ConversationView
         conversation={conversation}

@@ -162,7 +162,7 @@ export async function renderContexto(contactId: string): Promise<string> {
   const partes = [
     "\n\n# CONTEXTO",
     "## Cliente",
-    `- Nombre: ${contact.name}${contact.email ? `\n- Email: ${contact.email}` : ""}${contact.phone ? `\n- Telefono: ${contact.phone}` : ""}`,
+    `- Nombre: ${sinNombre(contact.name) ? "(todavia no lo sabes: preguntalo con naturalidad y guardalo con actualizar_contacto)" : contact.name}${contact.email ? `\n- Email: ${contact.email}` : ""}${contact.phone ? `\n- Telefono: ${contact.phone}` : ""}`,
     ...(conocidos.length ? [`- Datos conocidos: ${conocidos.join("; ")}`] : []),
     ...(contact.aiSummary ? [`- Resumen previo: ${contact.aiSummary}`] : []),
     `- Etapa actual: ${etapaActual}`,
@@ -176,4 +176,13 @@ export async function renderContexto(contactId: string): Promise<string> {
 export async function buildSystemPrompt(now: Date, channel = "whatsapp"): Promise<string> {
   const template = await getSystemPromptTemplate();
   return renderSystemPrompt(template, { now, channel });
+}
+
+/**
+ * True si el "nombre" del contacto no es un nombre: un contacto de WhatsApp sin perfil o
+ * uno nuevo del simulador se ve como su numero. El agente no saluda "Hola +54 9 11...".
+ */
+export function sinNombre(nombre: string | null | undefined): boolean {
+  const n = (nombre ?? "").trim();
+  return !n || !/\p{L}/u.test(n);
 }

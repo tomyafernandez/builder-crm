@@ -11,6 +11,7 @@ import { CamposPersonalizadosLista } from "@/components/contacts/CamposPersonali
 import { CHANNELS, CHANNEL_LABELS, type Channel } from "@/lib/channels/types";
 import { CHANNEL_COLORS, ChannelIcon } from "@/components/icons/channels";
 import { cn } from "@/lib/utils";
+import { TextoConEnlaces } from "@/components/conversations/TextoConEnlaces";
 import { toast } from "sonner";
 
 interface Mensaje {
@@ -47,7 +48,8 @@ interface Etapa {
  * escribe como cliente; la respuesta vuelve en la misma llamada. Al lado se ve lo que
  * el agente fue cambiando en el CRM (etapa, campos, resumen, actividades).
  */
-export function Simulador() {
+/** `presentacion`: sin la linea de diagnostico del ultimo turno (spec nucleo/20). */
+export function Simulador({ presentacion = false }: { presentacion?: boolean }) {
   const [canal, setCanal] = useState<Channel>("whatsapp");
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [contactId, setContactId] = useState<string | null>(null);
@@ -149,7 +151,7 @@ export function Simulador() {
       setMensajes(data.messages ?? []);
       setUltimo(data.agente ?? null);
       if (data.agente && !data.agente.ok) {
-        toast.message(`El agente no respondio: ${data.agente.reason ?? "sin motivo"}`);
+        toast.message(`El agente no respondió: ${data.agente.reason ?? "sin motivo"}`);
       }
       if (contactId) void cargarEstado(contactId);
     } catch (err) {
@@ -177,7 +179,7 @@ export function Simulador() {
           <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
             <CardTitle className="text-base flex items-center gap-2">
               <FlaskConical className="h-4 w-4" />
-              Conversacion simulada
+              Conversación simulada
             </CardTitle>
             <div className="flex items-center gap-2">
               <div className="flex gap-1">
@@ -200,7 +202,7 @@ export function Simulador() {
               </div>
               <Button size="sm" onClick={nuevaConversacion} disabled={creando} className="cursor-pointer">
                 {creando ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
-                Nueva conversacion
+                Nueva conversación
               </Button>
             </div>
           </CardHeader>
@@ -209,11 +211,11 @@ export function Simulador() {
             <div className="flex-1 overflow-y-auto rounded-lg border bg-muted/20 p-3 space-y-2 min-h-[380px] max-h-[60vh]">
               {!conversationId ? (
                 <p className="text-sm text-muted-foreground text-center py-16">
-                  Elegi el canal a simular y crea una conversacion nueva.
+                  Elegí el canal a simular y creá una conversación nueva.
                 </p>
               ) : mensajes.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-16">
-                  Escribi el primer mensaje como si fueras el cliente.
+                  Escribí el primer mensaje como si fueras el cliente.
                 </p>
               ) : (
                 mensajes.map((m) => (
@@ -229,7 +231,7 @@ export function Simulador() {
                       <span className="mr-1.5 inline-flex align-middle opacity-70">
                         {m.direction === "in" ? <User className="h-3 w-3" /> : <Bot className="h-3 w-3" />}
                       </span>
-                      {m.body}
+                      {m.body ? <TextoConEnlaces texto={m.body} /> : null}
                     </div>
                   </div>
                 ))
@@ -255,7 +257,7 @@ export function Simulador() {
                     void enviar();
                   }
                 }}
-                placeholder={conversationId ? "Escribi como el cliente..." : "Primero crea una conversacion"}
+                placeholder={conversationId ? "Escribí como el cliente..." : "Primero creá una conversación"}
                 disabled={!conversationId || ocupado}
               />
               <Button onClick={enviar} disabled={!conversationId || ocupado || !texto.trim()} className="cursor-pointer">
@@ -264,9 +266,9 @@ export function Simulador() {
               </Button>
             </div>
 
-            {ultimo && (
+            {ultimo && !presentacion && (
               <p className="text-[11px] text-muted-foreground">
-                Ultimo turno: {ultimo.ok ? "respondio" : `no respondio (${ultimo.reason ?? "?"})`}
+                Último turno: {ultimo.ok ? "respondió" : `no respondió (${ultimo.reason ?? "?"})`}
                 {typeof ultimo.toolCalls === "number" && ` · ${ultimo.toolCalls} herramienta${ultimo.toolCalls === 1 ? "" : "s"}`}
                 {conversationId && (
                   <>
@@ -288,7 +290,7 @@ export function Simulador() {
           <CardContent className="space-y-4 text-sm">
             {!estado ? (
               <p className="text-muted-foreground">
-                Cuando el agente actue sobre la ficha, lo vas a ver aqui: etapa, campos, resumen y actividades.
+                Cuando el agente actúe sobre la ficha, lo vas a ver aquí: etapa, campos, resumen y actividades.
               </p>
             ) : (
               <>
@@ -307,7 +309,7 @@ export function Simulador() {
                       {etapaActual.name}
                     </span>
                   ) : (
-                    <p className="text-muted-foreground">Sin operacion todavia</p>
+                    <p className="text-muted-foreground">Sin operación todavía</p>
                   )}
                 </div>
                 <div>
@@ -317,7 +319,7 @@ export function Simulador() {
                 <div>
                   <p className="text-xs text-muted-foreground uppercase tracking-wider">Resumen del agente</p>
                   <p className={cn("mt-0.5 whitespace-pre-line", !estado.aiSummary && "text-muted-foreground")}>
-                    {estado.aiSummary ?? "Todavia no hay resumen."}
+                    {estado.aiSummary ?? "Todavía no hay resumen."}
                   </p>
                 </div>
                 <div>

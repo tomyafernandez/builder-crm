@@ -112,8 +112,8 @@ export function ContactDetailPanel({
       setNeedsHumanReason(data.needsHumanReason);
       toast.success(
         data.aiEnabled
-          ? "Agente reactivado en esta conversacion"
-          : "Agente pausado en esta conversacion",
+          ? "Agente reactivado en esta conversación"
+          : "Agente pausado en esta conversación",
       );
     } catch {
       toast.error("No se pudo actualizar el estado del bot");
@@ -486,5 +486,5 @@ function extractAttribution(metadata: unknown): Attribution | null {
   const url = str("ctwa_source_url");
 
   if (!title && !adId) return null;
-  return { title: title ?? "Anuncio sin titulo", url, adId };
+  return { title: title ?? "Anuncio sin título", url, adId };
 }

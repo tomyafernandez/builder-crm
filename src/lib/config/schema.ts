@@ -307,6 +307,12 @@ export const esquemaConfig = z.object({
   }),
   /** Tarjeta de retorno del panel (supuestos). Ver spec nucleo/19. */
   retorno: esquemaRetorno.default({ activo: false, minutosPorMensaje: 3, tasaAusencia: 0.15, horasJornadaMes: 160 }),
+  /**
+   * Modo presentacion (spec nucleo/20): para grabar o mostrar una demo. Esconde las marcas
+   * tecnicas que no le dicen nada a un cliente: la etiqueta "sim" de la bandeja y la linea
+   * de diagnostico del simulador. No cambia ningun comportamiento.
+   */
+  presentacion: z.boolean().default(false),
   /** Laboratorio del agente: personas del nicho y puntaje minimo. Ver spec nucleo/17. */
   laboratorio: esquemaLaboratorio.default({ puntajeMinimo: 85, exigir: false }),
   /** Funciones del nucleo apagables + modulos de `modules/` por nombre de carpeta. */

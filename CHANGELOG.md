@@ -4,6 +4,31 @@ Que trae cada version de Builder CRM y que hacer para actualizar. SemVer segun l
 le importa a quien opera una instancia (ver "Versiones" en el [README](README.md)):
 mayor = pasos manuales, menor = funciones nuevas, parche = arreglos.
 
+## 2.7.0 — 2026-11-18
+
+### Actualizar desde 2.6.x
+
+Trae esta version y redespliega. Sin migraciones ni variables nuevas. Para grabar o
+mostrar una demo, `presentacion: true` en `config/cliente.ts`.
+
+### Nuevo (spec nucleo/20)
+
+- **Links con texto.** El link de pago de la sena se ve como "Pagá tu seña acá" en la
+  bandeja y en el simulador, no como una URL larga. Lo decide la tool (`data.enlaces`), no
+  el modelo; a WhatsApp, Instagram y Messenger les llega "texto: url".
+- **Contacto sin nombre.** El simulador crea al cliente con un telefono de prueba en vez
+  de "Cliente simulado"; el agente sabe que no tiene el nombre, lo pregunta y lo guarda.
+  El encabezado del hilo muestra el telefono, no `sim:uuid`.
+- **Modo presentacion** (`presentacion`): sin la etiqueta "sim" en la bandeja ni la linea
+  de diagnostico del simulador.
+- Tildes en Simulador, Panel, Agenda, Seguimientos, Bandeja y ficha del contacto.
+
+### Arreglos
+
+- **"Nuevos en 7 dias"** compara 7×24 h contra las 7×24 h anteriores: con dias de
+  calendario, el de hoy a medias hacia bajar la flecha segun la hora.
+- Al reprogramar un turno, el agente actualiza los datos de la ficha que tenian la fecha.
+
 ## 2.6.2 — 2026-11-14
 
 ### Actualizar desde 2.6.1
